@@ -6,7 +6,10 @@ import (
 	"booking-system-app/backend/internal/adapters/http/handlers"
 	"booking-system-app/backend/internal/adapters/http/middleware"
 	"booking-system-app/backend/internal/platform/security"
+	_ "booking-system-app/backend/docs"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handlers struct {
@@ -28,7 +31,9 @@ func New(handlers Handlers, tokens security.TokenService, globalMiddleware ...gi
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	api := engine.Group("/api")
+	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	api := engine.Group("/api/v1")
 	api.POST("/auth/register", handlers.Auth.Register)
 	api.POST("/auth/login", handlers.Auth.Login)
 
@@ -53,6 +58,7 @@ func New(handlers Handlers, tokens security.TokenService, globalMiddleware ...gi
 	admin.GET("/rooms/:roomID/seats", handlers.Admin.ListSeats)
 	admin.POST("/rooms/:roomID/seats", handlers.Admin.CreateSeat)
 	admin.PUT("/rooms/:roomID/seats/:seatID", handlers.Admin.UpdateSeat)
+	admin.DELETE("/rooms/:roomID/seats/:seatID", handlers.Admin.DeleteSeat)
 	admin.GET("/users", handlers.Admin.ListUsers)
 	admin.PUT("/users/:id/role", handlers.Admin.UpdateUserRole)
 	admin.PUT("/users/:id/status", handlers.Admin.UpdateUserStatus)

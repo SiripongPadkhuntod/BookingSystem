@@ -1,0 +1,976 @@
+basePath: /api/v1
+definitions:
+  domain.Reservation:
+    properties:
+      createdAt:
+        type: string
+      date:
+        type: string
+      endTime:
+        type: string
+      id:
+        type: string
+      note:
+        type: string
+      room:
+        $ref: '#/definitions/domain.Room'
+      roomId:
+        type: string
+      seat:
+        $ref: '#/definitions/domain.Seat'
+      seatId:
+        type: string
+      startTime:
+        type: string
+      status:
+        $ref: '#/definitions/domain.ReservationStatus'
+      user:
+        $ref: '#/definitions/domain.User'
+      userId:
+        type: string
+    type: object
+  domain.ReservationStatus:
+    enum:
+    - confirmed
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - ReservationConfirmed
+    - ReservationCancelled
+  domain.Role:
+    enum:
+    - user
+    - admin
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAdmin
+  domain.Room:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      floor:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+    type: object
+  domain.Seat:
+    properties:
+      id:
+        type: string
+      isActive:
+        type: boolean
+      label:
+        type: string
+      position:
+        $ref: '#/definitions/domain.SeatPosition'
+      roomId:
+        type: string
+      zone:
+        type: string
+    type: object
+  domain.SeatPosition:
+    properties:
+      x:
+        type: integer
+      "y":
+        type: integer
+    type: object
+  domain.User:
+    properties:
+      createdAt:
+        type: string
+      department:
+        type: string
+      displayName:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      lastName:
+        type: string
+      role:
+        $ref: '#/definitions/domain.Role'
+      studentId:
+        type: string
+      username:
+        type: string
+    type: object
+  services.AuthResult:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/domain.User'
+    type: object
+  services.ChangePasswordInput:
+    properties:
+      currentPassword:
+        type: string
+      newPassword:
+        type: string
+    type: object
+  services.CreateReservationInput:
+    properties:
+      date:
+        type: string
+      endTime:
+        type: string
+      note:
+        type: string
+      roomId:
+        type: string
+      seatId:
+        type: string
+      startTime:
+        type: string
+    type: object
+  services.DeactivateAccountInput:
+    properties:
+      password:
+        type: string
+    type: object
+  services.LoginInput:
+    properties:
+      identifier:
+        type: string
+      password:
+        type: string
+    type: object
+  services.RegisterInput:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      studentId:
+        type: string
+      username:
+        type: string
+    type: object
+  services.UpdateProfileInput:
+    properties:
+      department:
+        type: string
+      displayName:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      studentId:
+        type: string
+    type: object
+  services.UpdateRoleInput:
+    properties:
+      role:
+        $ref: '#/definitions/domain.Role'
+    type: object
+  services.UpdateStatusInput:
+    properties:
+      isActive:
+        type: boolean
+    type: object
+  services.UpsertRoomInput:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      floor:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+    type: object
+  services.UpsertSeatInput:
+    properties:
+      isActive:
+        type: boolean
+      label:
+        type: string
+      roomId:
+        type: string
+      x:
+        type: integer
+      "y":
+        type: integer
+      zone:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is the backend API for the Booking System Application.
+  title: Booking System API
+  version: "1.0"
+paths:
+  /admin/rooms:
+    get:
+      description: Returns a list of all rooms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/domain.Room'
+              type: array
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all rooms (Admin)
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      description: Creates a new room
+      parameters:
+      - description: Room details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpsertRoomInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Room'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a room (Admin)
+      tags:
+      - admin
+  /admin/rooms/{roomID}:
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing room
+      parameters:
+      - description: Room ID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      - description: Room details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpsertRoomInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Room'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a room (Admin)
+      tags:
+      - admin
+  /admin/rooms/{roomID}/seats:
+    get:
+      description: Returns a list of all seats in a room
+      parameters:
+      - description: Room ID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/domain.Seat'
+              type: array
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List seats in a room (Admin)
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      description: Creates a new seat in a room
+      parameters:
+      - description: Room ID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      - description: Seat details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpsertSeatInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Seat'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a seat (Admin)
+      tags:
+      - admin
+  /admin/rooms/{roomID}/seats/{seatID}:
+    delete:
+      description: Deletes a seat from a room
+      parameters:
+      - description: Room ID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      - description: Seat ID
+        in: path
+        name: seatID
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a seat (Admin)
+      tags:
+      - admin
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing seat
+      parameters:
+      - description: Room ID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      - description: Seat ID
+        in: path
+        name: seatID
+        required: true
+        type: string
+      - description: Seat details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpsertSeatInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Seat'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a seat (Admin)
+      tags:
+      - admin
+  /admin/users:
+    get:
+      description: Returns a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/domain.User'
+              type: array
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all users (Admin)
+      tags:
+      - admin
+  /admin/users/{id}/role:
+    put:
+      consumes:
+      - application/json
+      description: Updates the role of a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Role info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpdateRoleInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user role (Admin)
+      tags:
+      - admin
+  /admin/users/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Activates or deactivates a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Status info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpdateStatusInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user status (Admin)
+      tags:
+      - admin
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/services.AuthResult'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login
+      tags:
+      - auth
+  /auth/me:
+    get:
+      description: Returns the profile of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - auth
+    put:
+      consumes:
+      - application/json
+      description: Updates the profile of the currently authenticated user
+      parameters:
+      - description: Profile details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpdateProfileInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - auth
+  /auth/me/deactivate:
+    post:
+      description: Deactivates the currently authenticated user account
+      parameters:
+      - description: Password info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.DeactivateAccountInput'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Deactivate account
+      tags:
+      - auth
+  /auth/me/password:
+    put:
+      consumes:
+      - application/json
+      description: Changes the password of the currently authenticated user
+      parameters:
+      - description: Password info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.ChangePasswordInput'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and returns a token
+      parameters:
+      - description: Registration info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/services.AuthResult'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /reservations:
+    get:
+      description: Returns all reservations based on filters
+      parameters:
+      - description: User ID
+        in: query
+        name: userId
+        type: string
+      - description: Room ID
+        in: query
+        name: roomId
+        type: string
+      - description: Seat ID
+        in: query
+        name: seatId
+        type: string
+      - description: Month (YYYY-MM)
+        in: query
+        name: month
+        type: string
+      - description: Date (YYYY-MM-DD)
+        in: query
+        name: date
+        type: string
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: startDate
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/domain.Reservation'
+              type: array
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List reservations
+      tags:
+      - reservations
+    post:
+      consumes:
+      - application/json
+      description: Creates a new seat reservation
+      parameters:
+      - description: Reservation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.CreateReservationInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Reservation'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create reservation
+      tags:
+      - reservations
+  /reservations/{id}:
+    delete:
+      description: Cancels a specific reservation by ID
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Cancel a reservation
+      tags:
+      - reservations
+  /reservations/me:
+    get:
+      description: Returns all reservations for the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/domain.Reservation'
+              type: array
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List my reservations
+      tags:
+      - reservations
+  /rooms:
+    get:
+      description: Returns a list of all active rooms available for booking
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/domain.Room'
+              type: array
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all active rooms
+      tags:
+      - catalog
+  /rooms/{roomID}/seats:
+    get:
+      description: Returns all seats for a specific room
+      parameters:
+      - description: Room ID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/domain.Seat'
+              type: array
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List seats for a room
+      tags:
+      - catalog
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

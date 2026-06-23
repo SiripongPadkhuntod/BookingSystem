@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { UserPlus } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole, Mail, User, Phone, ShieldCheck, MapPin, CheckCircle, CalendarCheck, Clock, Sparkles } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { api, setToken } from "@/lib/api";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { useLanguage } from "@/lib/i18n";
+import { motion } from "framer-motion";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function RegisterPage() {
     lastName: "",
     studentId: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -39,63 +41,242 @@ export default function RegisterPage() {
     }
   };
 
+  const featureCards = [
+    { icon: CheckCircle, label: "Fast & Easy", color: "#10b981", desc: "Book in seconds" },
+    { icon: MapPin, label: "Campus Map", color: "#3b82f6", desc: "Find rooms easily" },
+    { icon: Clock, label: "24/7 Access", color: "#f59e0b", desc: "Always available" },
+    { icon: ShieldCheck, label: "RSU Secure", color: "#ef4444", desc: "Verified access" },
+  ];
+
   return (
-    <main className="page-shell flex min-h-screen items-center justify-center px-4 py-10">
-      <section className="card w-full max-w-3xl p-6 sm:p-8">
-        <div className="mb-6 flex justify-end">
-          <LanguageSwitch />
-        </div>
-        <div className="mb-8 flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-700 text-white">
-            <UserPlus />
-          </div>
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">{t.registerTitle}</h1>
-            <p className="mt-2 text-sm text-slate-600">{t.registerDescription}</p>
-          </div>
-        </div>
+    <div className="auth-page">
+      {/* Animated background orbs */}
+      <div className="auth-bg-orbs">
+        <div className="auth-orb auth-orb--1" />
+        <div className="auth-orb auth-orb--2" />
+        <div className="auth-orb auth-orb--3" />
+        <div className="auth-orb auth-orb--4" />
+      </div>
 
-        {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+      {/* Grain texture */}
+      <div className="auth-grain" />
 
-        <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">{t.username}</span>
-            <input className="field px-4 py-3" value={form.username} onChange={(event) => update("username", event.target.value)} required />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">{t.email}</span>
-            <input className="field px-4 py-3" type="email" value={form.email} onChange={(event) => update("email", event.target.value)} required />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">{t.firstName}</span>
-            <input className="field px-4 py-3" value={form.firstName} onChange={(event) => update("firstName", event.target.value)} required />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">{t.lastName}</span>
-            <input className="field px-4 py-3" value={form.lastName} onChange={(event) => update("lastName", event.target.value)} required />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">{t.studentId}</span>
-            <input className="field px-4 py-3" value={form.studentId} onChange={(event) => update("studentId", event.target.value)} required />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">{t.password}</span>
-            <input className="field px-4 py-3" type="password" value={form.password} onChange={(event) => update("password", event.target.value)} required minLength={8} />
-          </label>
-          <div className="sm:col-span-2">
-            <button className="button-primary w-full px-4 py-3" disabled={loading}>
-              {loading ? t.registerLoading : t.createAccount}
-            </button>
+      <div className="auth-container">
+        {/* LEFT — Form */}
+        <motion.section
+          className="auth-form-section"
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="auth-glass-card" style={{ maxWidth: "600px", marginTop: "2rem", marginBottom: "2rem" }}>
+            {/* Header */}
+            <div className="auth-card-header">
+              <div className="auth-logo-row">
+                <div className="auth-logo-icon">
+                  <Sparkles size={20} />
+                </div>
+                <span className="auth-logo-text">{t.appName}</span>
+              </div>
+              <LanguageSwitch variant="dark" />
+            </div>
+
+            <div className="auth-card-body">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <span className="auth-badge">{t.appSubtitle}</span>
+                <h1 className="auth-title">{t.registerTitle}</h1>
+                <p className="auth-subtitle">{t.registerDescription}</p>
+              </motion.div>
+
+              <div className="auth-divider" />
+
+              {error && <div className="mb-4 rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</div>}
+
+              {/* Form */}
+              <motion.form
+                onSubmit={submit}
+                className="auth-form"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+              >
+                <div className="auth-field-row">
+                  <div className="auth-field">
+                    <label className="auth-label">{t.firstName}</label>
+                    <div className="auth-input-wrap">
+                      <User className="auth-input-icon" size={18} />
+                      <input
+                        className="auth-input"
+                        type="text"
+                        value={form.firstName}
+                        onChange={(e) => update("firstName", e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="auth-field">
+                    <label className="auth-label">{t.lastName}</label>
+                    <div className="auth-input-wrap">
+                      <User className="auth-input-icon" size={18} />
+                      <input
+                        className="auth-input"
+                        type="text"
+                        value={form.lastName}
+                        onChange={(e) => update("lastName", e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="auth-field">
+                  <label className="auth-label">{t.username}</label>
+                  <div className="auth-input-wrap">
+                    <User className="auth-input-icon" size={18} />
+                    <input
+                      className="auth-input"
+                      type="text"
+                      value={form.username}
+                      onChange={(e) => update("username", e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="auth-field-row">
+                  <div className="auth-field">
+                    <label className="auth-label">{t.email}</label>
+                    <div className="auth-input-wrap">
+                      <Mail className="auth-input-icon" size={18} />
+                      <input
+                        className="auth-input"
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => update("email", e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="auth-field">
+                    <label className="auth-label">{t.studentId}</label>
+                    <div className="auth-input-wrap">
+                      <Phone className="auth-input-icon" size={18} />
+                      <input
+                        className="auth-input"
+                        type="text"
+                        value={form.studentId}
+                        onChange={(e) => update("studentId", e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="auth-field">
+                  <label className="auth-label">{t.password}</label>
+                  <div className="auth-input-wrap">
+                    <LockKeyhole className="auth-input-icon" size={18} />
+                    <input
+                      className="auth-input auth-input--password"
+                      type={showPassword ? "text" : "password"}
+                      value={form.password}
+                      onChange={(e) => update("password", e.target.value)}
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      className="auth-eye-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="auth-btn-primary mt-4"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="auth-spinner" />
+                  ) : (
+                    <>
+                      <ShieldCheck size={18} />
+                      {t.createAccount}
+                    </>
+                  )}
+                </button>
+              </motion.form>
+
+              <p className="auth-switch-text">
+                {t.accountPrompt}{" "}
+                <Link href="/login" className="auth-switch-link">{t.loginAction}</Link>
+              </p>
+            </div>
           </div>
-        </form>
+        </motion.section>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
-          {t.accountPrompt}{" "}
-          <Link className="font-semibold text-red-700 hover:underline" href="/login">
-            {t.loginAction}
-          </Link>
-        </p>
-      </section>
-    </main>
+        {/* RIGHT — Visual showcase */}
+        <motion.section
+          className="auth-visual-section"
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+        >
+          <div className="auth-visual-card">
+            {/* Feature badges */}
+            <div className="auth-register-features">
+              {featureCards.map((item, i) => (
+                <motion.div
+                  key={item.label}
+                  className="auth-register-feature"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                >
+                  <div className="auth-register-feature-icon" style={{ background: `${item.color}20`, color: item.color }}>
+                    <item.icon size={22} />
+                  </div>
+                  <div>
+                    <h4 className="auth-register-feature-title">{item.label}</h4>
+                    <p className="auth-register-feature-desc">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Center illustration area */}
+            <div className="auth-visual-center">
+              <div className="auth-visual-glow auth-visual-glow--blue" />
+              <div className="auth-visual-seats auth-visual-seats--register">
+                {[...Array(16)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className={`auth-seat ${i % 4 === 0 ? "auth-seat--booked" : i % 3 === 0 ? "auth-seat--pending" : "auth-seat--free"}`}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.7 + i * 0.03, type: "spring", damping: 15 }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom text */}
+            <div className="auth-visual-bottom">
+              <h2 className="auth-visual-title">{t.registerVisualTitle || "Join Booking System"}</h2>
+              <p className="auth-visual-body">{t.registerVisualBody || "Register your account to manage your bookings and find the perfect spot."}</p>
+            </div>
+          </div>
+        </motion.section>
+      </div>
+    </div>
   );
 }

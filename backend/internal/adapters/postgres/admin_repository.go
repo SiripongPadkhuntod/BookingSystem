@@ -100,6 +100,18 @@ func (r AdminRepository) UpdateSeat(ctx context.Context, seat domain.Seat) (doma
 	return scanSeat(r.db.QueryRow(ctx, query, seat.ID, seat.RoomID, seat.Label, seat.Zone, seat.Position.X, seat.Position.Y, seat.IsActive))
 }
 
+func (r AdminRepository) DeleteSeat(ctx context.Context, seatID string) error {
+	query := `DELETE FROM seats WHERE id = $1`
+	tag, err := r.db.Exec(ctx, query, seatID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return domain.ErrNotFound
+	}
+	return nil
+}
+
 func (r AdminRepository) ListUsers(ctx context.Context) ([]domain.User, error) {
 	rows, err := r.db.Query(ctx, `
 		SELECT id, email, username, password_hash, first_name, last_name, display_name, student_id, department, role, is_active, created_at

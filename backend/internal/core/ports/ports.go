@@ -32,6 +32,7 @@ type AdminRepository interface {
 	ListSeats(ctx context.Context, roomID string) ([]domain.Seat, error)
 	CreateSeat(ctx context.Context, seat domain.Seat) (domain.Seat, error)
 	UpdateSeat(ctx context.Context, seat domain.Seat) (domain.Seat, error)
+	DeleteSeat(ctx context.Context, seatID string) error
 	ListUsers(ctx context.Context) ([]domain.User, error)
 	UpdateUserRole(ctx context.Context, userID string, role domain.Role) (domain.User, error)
 	UpdateUserStatus(ctx context.Context, userID string, isActive bool) (domain.User, error)

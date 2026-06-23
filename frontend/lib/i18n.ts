@@ -134,7 +134,10 @@ export const dictionaries = {
     seatClosed: "ปิดการจองที่นั่งแล้ว",
     roleSaved: "อัปเดต role แล้ว",
     adminLoadFailed: "โหลดข้อมูลผู้ดูแลไม่สำเร็จ",
-    adminSaveFailed: "บันทึกข้อมูลไม่สำเร็จ"
+    adminSaveFailed: "บันทึกข้อมูลไม่สำเร็จ",
+    accountDeactivated: "บัญชีผู้ใช้นี้ถูกระงับการใช้งาน",
+    registerVisualTitle: "จองพื้นที่ของคุณง่ายๆ",
+    registerVisualBody: "สมัครง่ายๆ ด้วยอีเมลมหาวิทยาลัย และเริ่มต้นค้นหาหรือจองที่นั่งได้ทันที"
   },
   en: {
     appName: "RSU Booking",
@@ -263,7 +266,10 @@ export const dictionaries = {
     seatClosed: "Seat booking disabled",
     roleSaved: "Role updated",
     adminLoadFailed: "Unable to load admin data",
-    adminSaveFailed: "Unable to save changes"
+    adminSaveFailed: "Unable to save changes",
+    accountDeactivated: "This account has been deactivated",
+    registerVisualTitle: "Secure your space easily",
+    registerVisualBody: "Register with your university email and start booking or finding seats instantly."
   }
 } as const;
 

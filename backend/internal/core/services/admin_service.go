@@ -104,6 +104,10 @@ func (s AdminService) UpdateSeat(ctx context.Context, id string, input UpsertSea
 	return s.admin.UpdateSeat(ctx, seat)
 }
 
+func (s AdminService) DeleteSeat(ctx context.Context, seatID string) error {
+	return s.admin.DeleteSeat(ctx, seatID)
+}
+
 func (s AdminService) ListUsers(ctx context.Context) ([]domain.User, error) {
 	return s.admin.ListUsers(ctx)
 }

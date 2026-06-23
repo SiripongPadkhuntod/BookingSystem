@@ -139,10 +139,18 @@ func (s AuthService) ChangePassword(ctx context.Context, userID string, input Ch
 	return err
 }
 
-func (s AuthService) DeactivateAccount(ctx context.Context, userID string) error {
+type DeactivateAccountInput struct {
+	Password string `json:"password"`
+}
+
+func (s AuthService) DeactivateAccount(ctx context.Context, userID string, input DeactivateAccountInput) error {
 	user, err := s.users.FindByID(ctx, userID)
 	if err != nil {
 		return err
+	}
+
+	if !security.CheckPassword(user.PasswordHash, input.Password) {
+		return domain.ErrIncorrectPassword
 	}
 
 	user.IsActive = false

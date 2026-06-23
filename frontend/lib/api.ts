@@ -48,7 +48,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
 export const api = {
   login: (body: { identifier: string; password: string }) =>
-    request<AuthResult>("/api/auth/login", { method: "POST", body: JSON.stringify(body), auth: false }),
+    request<AuthResult>("/api/v1/auth/login", { method: "POST", body: JSON.stringify(body), auth: false }),
   register: (body: {
     email: string;
     username: string;
@@ -56,18 +56,19 @@ export const api = {
     firstName: string;
     lastName: string;
     studentId: string;
-  }) => request<AuthResult>("/api/auth/register", { method: "POST", body: JSON.stringify(body), auth: false }),
-  me: () => request<User>("/api/auth/me"),
+  }) => request<AuthResult>("/api/v1/auth/register", { method: "POST", body: JSON.stringify(body), auth: false }),
+  me: () => request<User>("/api/v1/auth/me"),
   updateProfile: (body: { firstName: string; lastName: string; displayName: string; department: string; studentId: string }) => 
-    request<User>("/api/auth/me", { method: "PUT", body: JSON.stringify(body) }),
+    request<User>("/api/v1/auth/me", { method: "PUT", body: JSON.stringify(body) }),
   changePassword: (body: { currentPassword: string; newPassword: string }) => 
-    request<void>("/api/auth/me/password", { method: "PUT", body: JSON.stringify(body) }),
-  deactivateAccount: () => request<void>("/api/auth/me/deactivate", { method: "POST" }),
-  rooms: async () => (await request<{ data: Room[] }>("/api/rooms")).data,
-  seats: async (roomId: string) => (await request<{ data: Seat[] }>(`/api/rooms/${roomId}/seats`)).data,
+    request<void>("/api/v1/auth/me/password", { method: "PUT", body: JSON.stringify(body) }),
+  deactivateAccount: (body: { password: string }) => 
+    request<void>("/api/v1/auth/me/deactivate", { method: "POST", body: JSON.stringify(body) }),
+  rooms: async () => (await request<{ data: Room[] }>("/api/v1/rooms")).data,
+  seats: async (roomId: string) => (await request<{ data: Seat[] }>(`/api/v1/rooms/${roomId}/seats`)).data,
   reservations: async (params: URLSearchParams) =>
-    (await request<{ data: Reservation[] }>(`/api/reservations?${params.toString()}`)).data,
-  myReservations: async () => (await request<{ data: Reservation[] }>("/api/reservations/me")).data,
+    (await request<{ data: Reservation[] }>(`/api/v1/reservations?${params.toString()}`)).data,
+  myReservations: async () => (await request<{ data: Reservation[] }>("/api/v1/reservations/me")).data,
   createReservation: (body: {
     roomId: string;
     seatId: string;
@@ -75,41 +76,43 @@ export const api = {
     startTime: string;
     endTime: string;
     note: string;
-  }) => request<Reservation>("/api/reservations", { method: "POST", body: JSON.stringify(body) }),
-  cancelReservation: (id: string) => request<void>(`/api/reservations/${id}`, { method: "DELETE" }),
-  adminRooms: async () => (await request<{ data: Room[] }>("/api/admin/rooms")).data,
+  }) => request<Reservation>("/api/v1/reservations", { method: "POST", body: JSON.stringify(body) }),
+  cancelReservation: (id: string) => request<void>(`/api/v1/reservations/${id}`, { method: "DELETE" }),
+  adminRooms: async () => (await request<{ data: Room[] }>("/api/v1/admin/rooms")).data,
   adminCreateRoom: (body: {
     code: string;
     name: string;
     description: string;
     floor: string;
     isActive: boolean;
-  }) => request<Room>("/api/admin/rooms", { method: "POST", body: JSON.stringify(body) }),
+  }) => request<Room>("/api/v1/admin/rooms", { method: "POST", body: JSON.stringify(body) }),
   adminUpdateRoom: (id: string, body: {
     code: string;
     name: string;
     description: string;
     floor: string;
     isActive: boolean;
-  }) => request<Room>(`/api/admin/rooms/${id}`, { method: "PUT", body: JSON.stringify(body) }),
-  adminSeats: async (roomId: string) => (await request<{ data: Seat[] }>(`/api/admin/rooms/${roomId}/seats`)).data,
+  }) => request<Room>(`/api/v1/admin/rooms/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  adminSeats: async (roomId: string) => (await request<{ data: Seat[] }>(`/api/v1/admin/rooms/${roomId}/seats`)).data,
   adminCreateSeat: (roomId: string, body: {
     label: string;
     zone: string;
     x: number;
     y: number;
     isActive: boolean;
-  }) => request<Seat>(`/api/admin/rooms/${roomId}/seats`, { method: "POST", body: JSON.stringify(body) }),
+  }) => request<Seat>(`/api/v1/admin/rooms/${roomId}/seats`, { method: "POST", body: JSON.stringify(body) }),
   adminUpdateSeat: (roomId: string, seatId: string, body: {
     label: string;
     zone: string;
     x: number;
     y: number;
     isActive: boolean;
-  }) => request<Seat>(`/api/admin/rooms/${roomId}/seats/${seatId}`, { method: "PUT", body: JSON.stringify(body) }),
-  adminUsers: async () => (await request<{ data: User[] }>("/api/admin/users")).data,
+  }) => request<Seat>(`/api/v1/admin/rooms/${roomId}/seats/${seatId}`, { method: "PUT", body: JSON.stringify(body) }),
+  adminDeleteSeat: (roomId: string, seatId: string) =>
+    request<void>(`/api/v1/admin/rooms/${roomId}/seats/${seatId}`, { method: "DELETE" }),
+  adminUsers: async () => (await request<{ data: User[] }>("/api/v1/admin/users")).data,
   adminUpdateUserRole: (id: string, role: User["role"]) =>
-    request<User>(`/api/admin/users/${id}/role`, { method: "PUT", body: JSON.stringify({ role }) }),
+    request<User>(`/api/v1/admin/users/${id}/role`, { method: "PUT", body: JSON.stringify({ role }) }),
   adminUpdateUserStatus: (id: string, isActive: boolean) =>
-    request<User>(`/api/admin/users/${id}/status`, { method: "PUT", body: JSON.stringify({ isActive }) })
+    request<User>(`/api/v1/admin/users/${id}/status`, { method: "PUT", body: JSON.stringify({ isActive }) })
 };

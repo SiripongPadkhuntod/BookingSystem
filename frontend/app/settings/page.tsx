@@ -36,6 +36,8 @@ export default function SettingsPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [deactivatePassword, setDeactivatePassword] = useState("");
 
   // Password Strength
   const calculatePasswordStrength = (password: string) => {
@@ -118,15 +120,17 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeactivate = async () => {
-    if (!confirm("Are you sure you want to deactivate your account? This action cannot be undone and you will be logged out immediately.")) return;
-    
+  const handleDeactivate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
     try {
-      await api.deactivateAccount();
+      await api.deactivateAccount({ password: deactivatePassword });
       clearToken();
-      router.push("/auth/login");
+      router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to deactivate account");
+      setSaving(false);
     }
   };
 
@@ -377,10 +381,54 @@ export default function SettingsPage() {
                   Deactivating your account will prevent you from logging in and accessing any of your reservations. 
                   This action is immediate. If you need to recover your account later, you will need to contact an administrator.
                 </p>
-                <button onClick={handleDeactivate} className="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50">
+                <button onClick={() => setShowDeactivateModal(true)} className="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50">
                   <LogOut size={16} />
                   Deactivate My Account
                 </button>
+
+                {showDeactivateModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                      <h3 className="flex items-center gap-2 text-xl font-bold text-red-700">
+                        <AlertTriangle size={24} />
+                        Deactivate Account
+                      </h3>
+                      <p className="mt-2 text-sm text-slate-600">
+                        Are you sure you want to deactivate your account? This action cannot be undone and you will be logged out immediately. 
+                        Please enter your password to confirm.
+                      </p>
+                      <form onSubmit={handleDeactivate} className="mt-4">
+                        <label className="block">
+                          <span className="mb-1 block text-sm font-semibold text-slate-700">Your Password</span>
+                          <input 
+                            type="password" 
+                            required 
+                            value={deactivatePassword} 
+                            onChange={e => setDeactivatePassword(e.target.value)} 
+                            className="field w-full px-3 py-2" 
+                          />
+                        </label>
+                        <div className="mt-6 flex justify-end gap-3">
+                          <button
+                            type="button"
+                            onClick={() => { setShowDeactivateModal(false); setDeactivatePassword(""); }}
+                            disabled={saving}
+                            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={saving || !deactivatePassword}
+                            className="rounded-xl bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:opacity-50"
+                          >
+                            {saving ? "Deactivating..." : "Confirm Deactivation"}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
               </section>
             )}
           </div>

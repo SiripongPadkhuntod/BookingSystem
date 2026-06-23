@@ -5,7 +5,7 @@ import { Toast } from "@/components/Toast";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n";
 import type { Room, Seat, User } from "@/lib/types";
-import { DoorOpen, MapPinned, Plus, ShieldCheck, UsersRound } from "lucide-react";
+import { DoorOpen, MapPinned, Plus, ShieldCheck, UsersRound, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 const emptyRoomForm = {
@@ -150,6 +150,21 @@ export default function AdminPage() {
       await loadSeats(seat.roomId);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : t.adminSaveFailed);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteSeat = async (seat: Seat) => {
+    if (!confirm("Are you sure you want to delete this seat?")) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      await api.adminDeleteSeat(seat.roomId, seat.id);
+      setToastMessage("Seat deleted");
+      await loadSeats(seat.roomId);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Failed to delete seat");
     } finally {
       setSaving(false);
     }
@@ -300,9 +315,14 @@ export default function AdminPage() {
                       <div className="text-sm font-semibold text-slate-950">{seat.label}</div>
                       <div className="text-xs text-slate-500">{seat.zone || "-"} · X {seat.position.x} · Y {seat.position.y}</div>
                     </div>
-                    <button onClick={() => toggleSeat(seat)} disabled={saving} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${seat.isActive ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
-                      {seat.isActive ? t.active : t.inactive}
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => toggleSeat(seat)} disabled={saving} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${seat.isActive ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+                        {seat.isActive ? t.active : t.inactive}
+                      </button>
+                      <button onClick={() => deleteSeat(seat)} disabled={saving} className="rounded-lg border border-red-200 px-3 py-2 text-red-700 hover:bg-red-50" title="Delete Seat">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
