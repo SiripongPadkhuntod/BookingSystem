@@ -9,32 +9,32 @@ export function LanguageSwitch({ variant = "default" }: { variant?: "default" | 
   const { language, setLanguage } = useLanguage();
 
   const containerClass = variant === "dark" 
-    ? "inline-flex items-center gap-1 rounded-xl bg-slate-900/40 p-1 text-sm font-semibold text-slate-300 backdrop-blur-md"
-    : "inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 text-sm font-semibold text-slate-600";
+    ? "inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 p-1 text-xs font-medium text-slate-200"
+    : "inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1 text-xs font-medium text-slate-700";
 
-  const iconClass = variant === "dark" ? "text-slate-400" : "text-slate-400";
+  const iconClass = variant === "dark" ? "text-slate-400" : "text-slate-500";
   const getButtonClass = (item: Language) => {
     if (variant === "dark") {
       return language === item 
-        ? "bg-slate-700/80 text-white" 
-        : "text-slate-400 hover:bg-slate-800/50";
+        ? "bg-white text-slate-900" 
+        : "text-slate-400 hover:text-white";
     }
     return language === item 
-      ? "bg-slate-950 text-white" 
-      : "text-slate-500 hover:bg-slate-50";
+      ? "bg-slate-900 text-white" 
+      : "text-slate-500 hover:text-slate-900";
   };
 
   return (
     <div className={containerClass}>
-      <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${iconClass}`} title="Language">
-        <Languages size={16} />
+      <span className={`flex h-6 w-6 items-center justify-center rounded-md ${iconClass}`} title="Language">
+        <Languages size={14} />
       </span>
       {languages.map((item) => (
         <button
           key={item}
           type="button"
           onClick={() => setLanguage(item)}
-          className={`h-8 rounded-lg px-3 uppercase transition ${getButtonClass(item)}`}
+          className={`h-6 rounded-md px-2 uppercase transition ${getButtonClass(item)}`}
           aria-pressed={language === item}
         >
           {item}

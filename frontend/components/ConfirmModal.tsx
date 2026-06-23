@@ -43,24 +43,24 @@ export function ConfirmModal({
         className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
         onClick={onClose}
       />
-      <section className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+      <section className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-start gap-4">
-          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${tone === "danger" ? "bg-red-50 text-red-700" : "bg-slate-100 text-slate-700"}`}>
+          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${tone === "danger" ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"}`}>
             <AlertTriangle size={22} />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-semibold text-slate-950">{title}</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+            <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">{title}</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+          <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200">
             <X size={18} />
           </button>
         </div>
 
-        {children && <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">{children}</div>}
+        {children && <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">{children}</div>}
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} disabled={loading} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+          <button type="button" onClick={onClose} disabled={loading} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
             {cancelLabel}
           </button>
           <button type="button" onClick={onConfirm} disabled={loading} className={`rounded-xl border px-4 py-3 text-sm font-semibold transition disabled:opacity-60 ${confirmClass}`}>

@@ -49,7 +49,7 @@ function ReservationTable({
 
   return (
     <section className="card overflow-hidden">
-      <div className="hidden grid-cols-6 border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600 md:grid">
+      <div className="hidden grid-cols-6 border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600 md:grid dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-300">
         <div>{t.date}</div>
         <div>{t.time}</div>
         <div>{t.room}</div>
@@ -66,26 +66,26 @@ function ReservationTable({
         </div>
       ) : (
         reservations.map((reservation) => (
-          <div key={reservation.id} className="grid gap-3 border-b border-slate-100 px-4 py-4 text-sm last:border-b-0 md:grid-cols-6 md:items-center">
+          <div key={reservation.id} className="grid gap-3 border-b border-slate-100 px-4 py-4 text-sm last:border-b-0 md:grid-cols-6 md:items-center dark:border-slate-700/30">
             <div>
-              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.date}</span>
-              <div className="font-medium text-slate-900">{reservation.date.slice(0, 10)}</div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden dark:text-slate-500">{t.date}</span>
+              <div className="font-medium text-slate-900 dark:text-slate-100">{reservation.date.slice(0, 10)}</div>
             </div>
             <div>
-              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.time}</span>
-              <div className="text-slate-600">{reservation.startTime}-{reservation.endTime}</div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden dark:text-slate-500">{t.time}</span>
+              <div className="text-slate-600 dark:text-slate-400">{reservation.startTime}-{reservation.endTime}</div>
             </div>
             <div>
-              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.room}</span>
-              <div className="text-slate-600">{reservation.room?.name ?? reservation.roomId}</div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden dark:text-slate-500">{t.room}</span>
+              <div className="text-slate-600 dark:text-slate-400">{reservation.room?.name ?? reservation.roomId}</div>
             </div>
             <div>
-              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.seat}</span>
-              <div className="font-semibold text-slate-900">{reservation.seat?.label ?? reservation.seatId}</div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden dark:text-slate-500">{t.seat}</span>
+              <div className="font-semibold text-slate-900 dark:text-slate-100">{reservation.seat?.label ?? reservation.seatId}</div>
             </div>
             <div>
-              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.bookedBy}</span>
-              <div className="truncate text-slate-600">
+              <span className="text-xs font-semibold text-slate-400 md:hidden dark:text-slate-500">{t.bookedBy}</span>
+              <div className="truncate text-slate-600 dark:text-slate-400">
                 {reservation.user ? (reservation.user.displayName || `${reservation.user.firstName} ${reservation.user.lastName}`) : "-"}
               </div>
             </div>
@@ -183,9 +183,9 @@ export default function ReservationsPage() {
       <div className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-red-700">{t.reservations}</p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{t.reservationsTitle}</h1>
-            <p className="mt-2 text-sm text-slate-600">{t.reservationsDescription}</p>
+            <p className="text-sm font-semibold text-red-700 dark:text-red-500">{t.reservations}</p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{t.reservationsTitle}</h1>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{t.reservationsDescription}</p>
           </div>
           <button onClick={activeView === "mine" ? loadMine : loadBrowse} className="button-secondary flex items-center justify-center gap-2 px-4 py-3">
             <RefreshCcw size={18} />
@@ -193,7 +193,7 @@ export default function ReservationsPage() {
           </button>
         </div>
 
-        <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1">
+        <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-800">
           {[
             { value: "mine", label: t.myReservationsTab },
             { value: "browse", label: t.browseReservationsTab }
@@ -201,7 +201,7 @@ export default function ReservationsPage() {
             <button
               key={item.value}
               onClick={() => setActiveView(item.value as ViewMode)}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeView === item.value ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeView === item.value ? "bg-slate-950 text-white dark:bg-white dark:text-slate-900" : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700/50"}`}
             >
               {item.label}
             </button>
@@ -214,14 +214,14 @@ export default function ReservationsPage() {
           <section className="card p-4 sm:p-5">
             <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end">
               <label>
-                <span className="mb-2 block text-sm font-semibold text-slate-700">{t.room}</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">{t.room}</span>
                 <select className="field px-3 py-3" value={roomId} onChange={(event) => setRoomId(event.target.value)}>
                   <option value="">{t.allRooms}</option>
                   {rooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
                 </select>
               </label>
               <label>
-                <span className="mb-2 block text-sm font-semibold text-slate-700">{t.viewBy}</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">{t.viewBy}</span>
                 <select className="field px-3 py-3" value={periodMode} onChange={(event) => setPeriodMode(event.target.value as PeriodMode)}>
                   <option value="day">{t.day}</option>
                   <option value="week">{t.week}</option>
@@ -229,7 +229,7 @@ export default function ReservationsPage() {
                 </select>
               </label>
               <label>
-                <span className="mb-2 block text-sm font-semibold text-slate-700">{periodMode === "month" ? t.month : t.date}</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">{periodMode === "month" ? t.month : t.date}</span>
                 <input
                   className="field px-3 py-3"
                   type={periodMode === "month" ? "month" : "date"}
@@ -242,8 +242,8 @@ export default function ReservationsPage() {
                 {t.search}
               </button>
             </div>
-            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              {t.showing}: <span className="font-semibold text-slate-950">{periodLabel}</span>
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-400">
+              {t.showing}: <span className="font-semibold text-slate-950 dark:text-slate-200">{periodLabel}</span>
             </div>
           </section>
         )}
@@ -280,20 +280,20 @@ export default function ReservationsPage() {
           {cancelTarget && (
             <dl className="grid gap-3 text-sm">
               <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">{t.date}</dt>
-                <dd className="font-semibold text-slate-950">{cancelTarget.date.slice(0, 10)}</dd>
+                <dt className="text-slate-500 dark:text-slate-400">{t.date}</dt>
+                <dd className="font-semibold text-slate-950 dark:text-slate-200">{cancelTarget.date.slice(0, 10)}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">{t.time}</dt>
-                <dd className="font-semibold text-slate-950">{cancelTarget.startTime}-{cancelTarget.endTime}</dd>
+                <dt className="text-slate-500 dark:text-slate-400">{t.time}</dt>
+                <dd className="font-semibold text-slate-950 dark:text-slate-200">{cancelTarget.startTime}-{cancelTarget.endTime}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">{t.room}</dt>
-                <dd className="font-semibold text-slate-950">{cancelTarget.room?.name ?? cancelTarget.roomId}</dd>
+                <dt className="text-slate-500 dark:text-slate-400">{t.room}</dt>
+                <dd className="font-semibold text-slate-950 dark:text-slate-200">{cancelTarget.room?.name ?? cancelTarget.roomId}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">{t.seat}</dt>
-                <dd className="font-semibold text-slate-950">{cancelTarget.seat?.label ?? cancelTarget.seatId}</dd>
+                <dt className="text-slate-500 dark:text-slate-400">{t.seat}</dt>
+                <dd className="font-semibold text-slate-950 dark:text-slate-200">{cancelTarget.seat?.label ?? cancelTarget.seatId}</dd>
               </div>
             </dl>
           )}

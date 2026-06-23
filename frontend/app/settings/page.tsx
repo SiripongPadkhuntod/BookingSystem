@@ -143,9 +143,9 @@ export default function SettingsPage() {
     <AppShell>
       <div className="space-y-6">
         <div>
-          <p className="text-sm font-semibold text-red-700">{t.settings}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{t.accountSettingsTitle}</h1>
-          <p className="mt-2 text-sm text-slate-600">Manage your account preferences and security</p>
+          <p className="text-sm font-semibold text-red-700 dark:text-red-500">{t.settings}</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{t.accountSettingsTitle}</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Manage your account preferences and security</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
@@ -153,28 +153,28 @@ export default function SettingsPage() {
           <div className="space-y-2">
             <button
               onClick={() => { setActiveTab("profile"); setError(""); }}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${activeTab === "profile" ? "bg-red-50 text-red-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${activeTab === "profile" ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400" : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50"}`}
             >
               <UserCog size={18} />
               Profile details
             </button>
             <button
               onClick={() => { setActiveTab("security"); setError(""); }}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${activeTab === "security" ? "bg-red-50 text-red-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${activeTab === "security" ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400" : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50"}`}
             >
               <KeyRound size={18} />
               Security
             </button>
             <button
               onClick={() => { setActiveTab("preferences"); setError(""); }}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${activeTab === "preferences" ? "bg-red-50 text-red-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${activeTab === "preferences" ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400" : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50"}`}
             >
               <SettingsIcon size={18} />
               Preferences
             </button>
             <button
               onClick={() => { setActiveTab("danger"); setError(""); }}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${activeTab === "danger" ? "bg-red-50 text-red-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${activeTab === "danger" ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400" : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50"}`}
             >
               <AlertTriangle size={18} />
               Danger zone
@@ -193,15 +193,15 @@ export default function SettingsPage() {
               <>
                 <section className="card p-6">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-red-700">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                       <UserRound size={32} />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-slate-950">
+                      <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">
                         {user ? (user.displayName || `${user.firstName} ${user.lastName}`) : t.loading}
                       </h2>
-                      <p className="text-sm text-slate-500">{user?.email}</p>
-                      <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase text-slate-600">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</p>
+                      <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                         {user?.role ?? "user"}
                       </div>
                     </div>
@@ -210,44 +210,44 @@ export default function SettingsPage() {
 
                 <div className="grid gap-6 sm:grid-cols-3">
                   <div className="card p-5 text-center">
-                    <div className="text-2xl font-bold text-slate-950">{totalBookings}</div>
-                    <div className="text-xs font-semibold text-slate-500">Total Bookings</div>
+                    <div className="text-2xl font-bold text-slate-950 dark:text-slate-100">{totalBookings}</div>
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Bookings</div>
                   </div>
                   <div className="card p-5 text-center">
-                    <div className="text-2xl font-bold text-emerald-600">{activeBookings}</div>
-                    <div className="text-xs font-semibold text-slate-500">Confirmed</div>
+                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{activeBookings}</div>
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Confirmed</div>
                   </div>
                   <div className="card p-5 text-center">
-                    <div className="text-2xl font-bold text-red-600">{cancelledBookings}</div>
-                    <div className="text-xs font-semibold text-slate-500">Cancelled</div>
+                    <div className="text-2xl font-bold text-red-600 dark:text-red-400">{cancelledBookings}</div>
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Cancelled</div>
                   </div>
                 </div>
 
                 <section className="card p-6">
-                  <h3 className="mb-5 text-lg font-semibold text-slate-950">Update Profile</h3>
+                  <h3 className="mb-5 text-lg font-semibold text-slate-950 dark:text-slate-100">Update Profile</h3>
                   <form onSubmit={handleUpdateProfile} className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-1 block text-sm font-semibold text-slate-700">First Name</span>
+                        <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">First Name</span>
                         <input type="text" required value={firstName} onChange={e => setFirstName(e.target.value)} className="field w-full px-3 py-2" />
                       </label>
                       <label className="block">
-                        <span className="mb-1 block text-sm font-semibold text-slate-700">Last Name</span>
+                        <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Last Name</span>
                         <input type="text" required value={lastName} onChange={e => setLastName(e.target.value)} className="field w-full px-3 py-2" />
                       </label>
                     </div>
                     <label className="block">
-                      <span className="mb-1 block text-sm font-semibold text-slate-700">Display Name</span>
+                      <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Display Name</span>
                       <input type="text" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Leave blank to use full name" className="field w-full px-3 py-2" />
-                      <p className="mt-1 text-xs text-slate-500">This name will be shown on the platform instead of your full name.</p>
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">This name will be shown on the platform instead of your full name.</p>
                     </label>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-1 block text-sm font-semibold text-slate-700">Student ID</span>
+                        <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Student ID</span>
                         <input type="text" value={studentId} onChange={e => setStudentId(e.target.value)} className="field w-full px-3 py-2" />
                       </label>
                       <label className="block">
-                        <span className="mb-1 block text-sm font-semibold text-slate-700">Department</span>
+                        <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Department</span>
                         <input type="text" value={department} onChange={e => setDepartment(e.target.value)} className="field w-full px-3 py-2" />
                       </label>
                     </div>
@@ -264,25 +264,25 @@ export default function SettingsPage() {
             {activeTab === "security" && (
               <section className="card p-6 relative">
                 <div className="mb-5 flex items-center gap-3">
-                  <Lock className="text-red-700" size={24} />
-                  <h3 className="text-lg font-semibold text-slate-950">Change Password</h3>
+                  <Lock className="text-red-700 dark:text-red-500" size={24} />
+                  <h3 className="text-lg font-semibold text-slate-950 dark:text-slate-100">Change Password</h3>
                 </div>
                 <form onSubmit={requestPasswordChange} className="space-y-4 max-w-md">
                   <label className="block">
-                    <span className="mb-1 block text-sm font-semibold text-slate-700">Current Password</span>
+                    <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Current Password</span>
                     <div className="relative">
                       <input type={showCurrentPassword ? "text" : "password"} required value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="field w-full px-3 py-2 pr-10" />
-                      <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                      <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
                         {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
                   </label>
 
                   <label className="block">
-                    <span className="mb-1 block text-sm font-semibold text-slate-700">New Password</span>
+                    <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">New Password</span>
                     <div className="relative">
                       <input type={showNewPassword ? "text" : "password"} required value={newPassword} onChange={e => setNewPassword(e.target.value)} className="field w-full px-3 py-2 pr-10" />
-                      <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                      <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
                         {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
@@ -291,10 +291,10 @@ export default function SettingsPage() {
                       <div className="mt-2">
                         <div className="flex gap-1 h-1.5">
                           {[1, 2, 3, 4].map(level => (
-                            <div key={level} className={`h-full flex-1 rounded-full ${passwordStrength >= level ? strengthColors[passwordStrength] : 'bg-slate-200'}`} />
+                            <div key={level} className={`h-full flex-1 rounded-full ${passwordStrength >= level ? strengthColors[passwordStrength] : 'bg-slate-200 dark:bg-slate-700'}`} />
                           ))}
                         </div>
-                        <div className="mt-1 text-xs text-right font-semibold text-slate-500">
+                        <div className="mt-1 text-xs text-right font-semibold text-slate-500 dark:text-slate-400">
                           {strengthLabels[passwordStrength]}
                         </div>
                       </div>
@@ -302,10 +302,10 @@ export default function SettingsPage() {
                   </label>
 
                   <label className="block">
-                    <span className="mb-1 block text-sm font-semibold text-slate-700">Confirm New Password</span>
+                    <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Confirm New Password</span>
                     <div className="relative">
                       <input type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="field w-full px-3 py-2 pr-10" />
-                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
                         {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
@@ -321,16 +321,16 @@ export default function SettingsPage() {
                 {/* Password Change Confirmation Modal */}
                 {showPasswordModal && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-                      <h3 className="text-lg font-bold text-slate-900">Confirm Password Change</h3>
-                      <p className="mt-2 text-sm text-slate-600">
+                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Confirm Password Change</h3>
+                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                         Are you sure you want to change your password? You will need to use your new password the next time you log in.
                       </p>
                       <div className="mt-6 flex justify-end gap-3">
                         <button
                           onClick={() => setShowPasswordModal(false)}
                           disabled={saving}
-                          className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+                          className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                           Cancel
                         </button>
@@ -351,12 +351,12 @@ export default function SettingsPage() {
             {activeTab === "preferences" && (
               <section className="card p-6">
                 <div className="mb-5 flex items-center gap-3">
-                  <Globe className="text-red-700" size={24} />
-                  <h3 className="text-lg font-semibold text-slate-950">Language & Region</h3>
+                  <Globe className="text-red-700 dark:text-red-500" size={24} />
+                  <h3 className="text-lg font-semibold text-slate-950 dark:text-slate-100">Language & Region</h3>
                 </div>
                 <div className="max-w-md space-y-4">
                   <label className="block">
-                    <span className="mb-1 block text-sm font-semibold text-slate-700">Display Language</span>
+                    <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Display Language</span>
                     <select 
                       value={language} 
                       onChange={(e) => setLanguage(e.target.value as any)}
@@ -366,40 +366,40 @@ export default function SettingsPage() {
                       <option value="en">English</option>
                     </select>
                   </label>
-                  <p className="text-xs text-slate-500">Changes the language of the application interface immediately.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Changes the language of the application interface immediately.</p>
                 </div>
               </section>
             )}
 
             {activeTab === "danger" && (
-              <section className="card border-red-200 bg-red-50/30 p-6">
+              <section className="card border-red-200 bg-red-50/30 p-6 dark:border-red-900/50 dark:bg-red-900/10">
                 <div className="mb-5 flex items-center gap-3">
-                  <AlertTriangle className="text-red-700" size={24} />
-                  <h3 className="text-lg font-semibold text-red-950">Danger Zone</h3>
+                  <AlertTriangle className="text-red-700 dark:text-red-500" size={24} />
+                  <h3 className="text-lg font-semibold text-red-950 dark:text-red-300">Danger Zone</h3>
                 </div>
-                <p className="mb-5 text-sm text-red-800">
+                <p className="mb-5 text-sm text-red-800 dark:text-red-400">
                   Deactivating your account will prevent you from logging in and accessing any of your reservations. 
                   This action is immediate. If you need to recover your account later, you will need to contact an administrator.
                 </p>
-                <button onClick={() => setShowDeactivateModal(true)} className="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50">
+                <button onClick={() => setShowDeactivateModal(true)} className="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40">
                   <LogOut size={16} />
                   Deactivate My Account
                 </button>
 
                 {showDeactivateModal && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                      <h3 className="flex items-center gap-2 text-xl font-bold text-red-700">
+                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                      <h3 className="flex items-center gap-2 text-xl font-bold text-red-700 dark:text-red-500">
                         <AlertTriangle size={24} />
                         Deactivate Account
                       </h3>
-                      <p className="mt-2 text-sm text-slate-600">
+                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                         Are you sure you want to deactivate your account? This action cannot be undone and you will be logged out immediately. 
                         Please enter your password to confirm.
                       </p>
                       <form onSubmit={handleDeactivate} className="mt-4">
                         <label className="block">
-                          <span className="mb-1 block text-sm font-semibold text-slate-700">Your Password</span>
+                          <span className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Your Password</span>
                           <input 
                             type="password" 
                             required 
@@ -413,7 +413,7 @@ export default function SettingsPage() {
                             type="button"
                             onClick={() => { setShowDeactivateModal(false); setDeactivatePassword(""); }}
                             disabled={saving}
-                            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+                            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                           >
                             Cancel
                           </button>

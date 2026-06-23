@@ -202,9 +202,9 @@ export default function AdminPage() {
     <AppShell>
       <div className="space-y-6">
         <div>
-          <p className="text-sm font-semibold text-red-700">{t.admin}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{t.adminTitle}</h1>
-          <p className="mt-2 text-sm text-slate-600">{t.adminDescription}</p>
+          <p className="text-sm font-semibold text-red-700 dark:text-red-500">{t.admin}</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{t.adminTitle}</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{t.adminDescription}</p>
         </div>
 
         {message && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{message}</div>}
@@ -212,19 +212,19 @@ export default function AdminPage() {
         <div className="flex items-center gap-6 border-b border-slate-200">
           <button
             onClick={() => setActiveTab("maps")}
-            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "maps" ? "border-b-2 border-red-700 text-red-700" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700"}`}
+            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "maps" ? "border-b-2 border-red-700 text-red-700 dark:border-red-500 dark:text-red-500" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"}`}
           >
             {t.manageRooms}
           </button>
           <button
             onClick={() => setActiveTab("roles")}
-            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "roles" ? "border-b-2 border-red-700 text-red-700" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700"}`}
+            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "roles" ? "border-b-2 border-red-700 text-red-700 dark:border-red-500 dark:text-red-500" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"}`}
           >
             {t.manageRoles}
           </button>
           <button
             onClick={() => setActiveTab("users")}
-            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "users" ? "border-b-2 border-red-700 text-red-700" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700"}`}
+            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "users" ? "border-b-2 border-red-700 text-red-700 dark:border-red-500 dark:text-red-500" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"}`}
           >
             User Management
           </button>
@@ -234,12 +234,12 @@ export default function AdminPage() {
           <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
           <div className="card p-5">
             <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                 <MapPinned size={22} />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-slate-950">{t.manageRooms}</h2>
-                <p className="text-sm text-slate-500">{t.manageRoomsHint}</p>
+                <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">{t.manageRooms}</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t.manageRoomsHint}</p>
               </div>
             </div>
 
@@ -260,14 +260,14 @@ export default function AdminPage() {
 
             <div className="mt-5 space-y-2">
               {loading ? (
-                <div className="py-6 text-center text-sm text-slate-500">{t.loading}...</div>
+                <div className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">{t.loading}...</div>
               ) : rooms.map((room) => (
-                <div key={room.id} className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 ${selectedRoomId === room.id ? "border-red-200 bg-red-50" : "border-slate-200 bg-white"}`}>
+                <div key={room.id} className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 ${selectedRoomId === room.id ? "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20" : "border-slate-200 bg-white dark:border-slate-700/50 dark:bg-slate-800/50"}`}>
                   <button onClick={() => setSelectedRoomId(room.id)} className="min-w-0 text-left">
-                    <div className="truncate text-sm font-semibold text-slate-950">{room.name}</div>
-                    <div className="text-xs text-slate-500">{room.code} · {room.floor || "-"}</div>
+                    <div className="truncate text-sm font-semibold text-slate-950 dark:text-slate-100">{room.name}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{room.code} · {room.floor || "-"}</div>
                   </button>
-                  <button onClick={() => toggleRoom(room)} disabled={saving} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${room.isActive ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+                  <button onClick={() => toggleRoom(room)} disabled={saving} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${room.isActive ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900/50 dark:text-emerald-400 dark:hover:bg-emerald-900/30" : "border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-700/50 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
                     {room.isActive ? t.active : t.inactive}
                   </button>
                 </div>
@@ -277,12 +277,12 @@ export default function AdminPage() {
 
           <div className="card p-5">
             <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                 <DoorOpen size={22} />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-slate-950">{t.manageSeats}</h2>
-                <p className="text-sm text-slate-500">{selectedRoom?.name ?? t.chooseRoom}</p>
+                <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">{t.manageSeats}</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{selectedRoom?.name ?? t.chooseRoom}</p>
               </div>
             </div>
 
@@ -309,17 +309,17 @@ export default function AdminPage() {
 
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               {seats.map((seat) => (
-                <div key={seat.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                <div key={seat.id} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-sm font-semibold text-slate-950">{seat.label}</div>
-                      <div className="text-xs text-slate-500">{seat.zone || "-"} · X {seat.position.x} · Y {seat.position.y}</div>
+                      <div className="text-sm font-semibold text-slate-950 dark:text-slate-100">{seat.label}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">{seat.zone || "-"} · X {seat.position.x} · Y {seat.position.y}</div>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => toggleSeat(seat)} disabled={saving} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${seat.isActive ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+                      <button onClick={() => toggleSeat(seat)} disabled={saving} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${seat.isActive ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900/50 dark:text-emerald-400 dark:hover:bg-emerald-900/30" : "border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-700/50 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
                         {seat.isActive ? t.active : t.inactive}
                       </button>
-                      <button onClick={() => deleteSeat(seat)} disabled={saving} className="rounded-lg border border-red-200 px-3 py-2 text-red-700 hover:bg-red-50" title="Delete Seat">
+                      <button onClick={() => deleteSeat(seat)} disabled={saving} className="rounded-lg border border-red-200 px-3 py-2 text-red-700 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/30" title="Delete Seat">
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -335,12 +335,12 @@ export default function AdminPage() {
           <section className="card p-5">
             <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                   <UsersRound size={22} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-950">{t.manageRoles}</h2>
-                  <p className="text-sm text-slate-500">{t.manageRolesHint}</p>
+                  <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">{t.manageRoles}</h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{t.manageRolesHint}</p>
                 </div>
               </div>
               <input 
@@ -354,13 +354,13 @@ export default function AdminPage() {
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {filteredUsers.map((user) => (
-                <div key={user.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                <div key={user.id} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold text-slate-950">{user.displayName || `${user.firstName} ${user.lastName}`}</div>
-                      <div className="truncate text-xs text-slate-500">{user.email}</div>
+                      <div className="truncate text-sm font-semibold text-slate-950 dark:text-slate-100">{user.displayName || `${user.firstName} ${user.lastName}`}</div>
+                      <div className="truncate text-xs text-slate-500 dark:text-slate-400">{user.email}</div>
                     </div>
-                    <ShieldCheck size={18} className={user.role === "admin" ? "text-red-700" : "text-slate-300"} />
+                    <ShieldCheck size={18} className={user.role === "admin" ? "text-red-700 dark:text-red-500" : "text-slate-300 dark:text-slate-600"} />
                   </div>
                   <select className="field mt-4 px-3 py-3" value={user.role} onChange={(event) => updateUserRole(user, event.target.value as User["role"])}>
                     <option value="user">{t.userRole}</option>
@@ -376,12 +376,12 @@ export default function AdminPage() {
           <section className="card p-5">
             <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                   <UsersRound size={22} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-950">User Management</h2>
-                  <p className="text-sm text-slate-500">Enable or disable user access</p>
+                  <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">User Management</h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Enable or disable user access</p>
                 </div>
               </div>
               <input 
@@ -395,11 +395,11 @@ export default function AdminPage() {
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {filteredUsers.map((user) => (
-                <div key={user.id} className={`rounded-xl border p-4 ${user.isActive ? "border-slate-200 bg-white" : "border-red-100 bg-red-50/30 opacity-75"}`}>
+                <div key={user.id} className={`rounded-xl border p-4 ${user.isActive ? "border-slate-200 bg-white dark:border-slate-700/50 dark:bg-slate-800/50" : "border-red-100 bg-red-50/30 opacity-75 dark:border-red-900/50 dark:bg-red-900/10"}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold text-slate-950">{user.displayName || `${user.firstName} ${user.lastName}`}</div>
-                      <div className="truncate text-xs text-slate-500">{user.email}</div>
+                      <div className="truncate text-sm font-semibold text-slate-950 dark:text-slate-100">{user.displayName || `${user.firstName} ${user.lastName}`}</div>
+                      <div className="truncate text-xs text-slate-500 dark:text-slate-400">{user.email}</div>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center justify-between">

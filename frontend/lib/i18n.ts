@@ -137,7 +137,9 @@ export const dictionaries = {
     adminSaveFailed: "บันทึกข้อมูลไม่สำเร็จ",
     accountDeactivated: "บัญชีผู้ใช้นี้ถูกระงับการใช้งาน",
     registerVisualTitle: "จองพื้นที่ของคุณง่ายๆ",
-    registerVisualBody: "สมัครง่ายๆ ด้วยอีเมลมหาวิทยาลัย และเริ่มต้นค้นหาหรือจองที่นั่งได้ทันที"
+    registerVisualBody: "สมัครง่ายๆ ด้วยอีเมลมหาวิทยาลัย และเริ่มต้นค้นหาหรือจองที่นั่งได้ทันที",
+    darkMode: "โหมดกลางคืน",
+    lightMode: "โหมดกลางวัน"
   },
   en: {
     appName: "RSU Booking",
@@ -269,7 +271,9 @@ export const dictionaries = {
     adminSaveFailed: "Unable to save changes",
     accountDeactivated: "This account has been deactivated",
     registerVisualTitle: "Secure your space easily",
-    registerVisualBody: "Register with your university email and start booking or finding seats instantly."
+    registerVisualBody: "Register with your university email and start booking or finding seats instantly.",
+    darkMode: "Dark mode",
+    lightMode: "Light mode"
   }
 } as const;
 
