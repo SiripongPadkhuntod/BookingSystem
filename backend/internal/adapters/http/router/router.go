@@ -1,0 +1,45 @@
+package router
+
+import (
+	"net/http"
+
+	"booking-system-app/backend/internal/adapters/http/handlers"
+	"booking-system-app/backend/internal/adapters/http/middleware"
+	"booking-system-app/backend/internal/platform/security"
+	"github.com/gin-gonic/gin"
+)
+
+type Handlers struct {
+	Auth         handlers.AuthHandler
+	Catalog      handlers.CatalogHandler
+	Reservations handlers.ReservationHandler
+}
+
+func New(handlers Handlers, tokens security.TokenService, globalMiddleware ...gin.HandlerFunc) *gin.Engine {
+	engine := gin.New()
+	_ = engine.SetTrustedProxies(nil)
+	engine.Use(gin.Logger(), gin.Recovery())
+	if len(globalMiddleware) > 0 {
+		engine.Use(globalMiddleware...)
+	}
+
+	engine.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	api := engine.Group("/api")
+	api.POST("/auth/register", handlers.Auth.Register)
+	api.POST("/auth/login", handlers.Auth.Login)
+
+	protected := api.Group("")
+	protected.Use(middleware.Auth(tokens))
+	protected.GET("/auth/me", handlers.Auth.Me)
+	protected.GET("/rooms", handlers.Catalog.ListRooms)
+	protected.GET("/rooms/:roomID/seats", handlers.Catalog.ListSeats)
+	protected.GET("/reservations", handlers.Reservations.List)
+	protected.GET("/reservations/me", handlers.Reservations.MyReservations)
+	protected.POST("/reservations", handlers.Reservations.Create)
+	protected.DELETE("/reservations/:id", handlers.Reservations.Cancel)
+
+	return engine
+}
