@@ -71,5 +71,38 @@ export const api = {
     endTime: string;
     note: string;
   }) => request<Reservation>("/api/reservations", { method: "POST", body: JSON.stringify(body) }),
-  cancelReservation: (id: string) => request<void>(`/api/reservations/${id}`, { method: "DELETE" })
+  cancelReservation: (id: string) => request<void>(`/api/reservations/${id}`, { method: "DELETE" }),
+  adminRooms: async () => (await request<{ data: Room[] }>("/api/admin/rooms")).data,
+  adminCreateRoom: (body: {
+    code: string;
+    name: string;
+    description: string;
+    floor: string;
+    isActive: boolean;
+  }) => request<Room>("/api/admin/rooms", { method: "POST", body: JSON.stringify(body) }),
+  adminUpdateRoom: (id: string, body: {
+    code: string;
+    name: string;
+    description: string;
+    floor: string;
+    isActive: boolean;
+  }) => request<Room>(`/api/admin/rooms/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  adminSeats: async (roomId: string) => (await request<{ data: Seat[] }>(`/api/admin/rooms/${roomId}/seats`)).data,
+  adminCreateSeat: (roomId: string, body: {
+    label: string;
+    zone: string;
+    x: number;
+    y: number;
+    isActive: boolean;
+  }) => request<Seat>(`/api/admin/rooms/${roomId}/seats`, { method: "POST", body: JSON.stringify(body) }),
+  adminUpdateSeat: (roomId: string, seatId: string, body: {
+    label: string;
+    zone: string;
+    x: number;
+    y: number;
+    isActive: boolean;
+  }) => request<Seat>(`/api/admin/rooms/${roomId}/seats/${seatId}`, { method: "PUT", body: JSON.stringify(body) }),
+  adminUsers: async () => (await request<{ data: User[] }>("/api/admin/users")).data,
+  adminUpdateUserRole: (id: string, role: User["role"]) =>
+    request<User>(`/api/admin/users/${id}/role`, { method: "PUT", body: JSON.stringify({ role }) })
 };

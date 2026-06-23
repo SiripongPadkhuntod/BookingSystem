@@ -37,10 +37,12 @@ func main() {
 	userRepo := postgres.NewUserRepository(db)
 	catalogRepo := postgres.NewCatalogRepository(db)
 	reservationRepo := postgres.NewReservationRepository(db)
+	adminRepo := postgres.NewAdminRepository(db)
 
 	authService := services.NewAuthService(userRepo, tokenService)
 	catalogService := services.NewCatalogService(catalogRepo)
 	reservationService := services.NewReservationService(reservationRepo)
+	adminService := services.NewAdminService(adminRepo)
 
 	corsMiddleware := cors.New(cors.Config{
 		AllowOrigins:     cfg.CORSOrigins,
@@ -55,6 +57,7 @@ func main() {
 		Auth:         httpHandlers.NewAuthHandler(authService),
 		Catalog:      httpHandlers.NewCatalogHandler(catalogService),
 		Reservations: httpHandlers.NewReservationHandler(reservationService),
+		Admin:        httpHandlers.NewAdminHandler(adminService),
 	}, tokenService, corsMiddleware)
 
 	if err := engine.Run(":" + cfg.Port); err != nil {

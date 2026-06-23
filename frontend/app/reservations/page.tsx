@@ -2,28 +2,164 @@
 
 import { AppShell } from "@/components/AppShell";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { Toast } from "@/components/Toast";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n";
-import type { Reservation } from "@/lib/types";
-import { CalendarX, RefreshCcw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { todayISO } from "@/lib/time";
+import type { Reservation, Room } from "@/lib/types";
+import { CalendarX, RefreshCcw, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
+type ViewMode = "mine" | "browse";
+type PeriodMode = "day" | "week" | "month";
+
+function isoDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function monthValue(value: string) {
+  return value.slice(0, 7);
+}
+
+function weekRange(value: string) {
+  const base = new Date(`${value}T00:00:00`);
+  const day = base.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const start = new Date(base);
+  start.setDate(base.getDate() + mondayOffset);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return { startDate: isoDate(start), endDate: isoDate(end) };
+}
+
+function ReservationTable({
+  reservations,
+  loading,
+  emptyLabel,
+  actionLabel,
+  onCancel
+}: {
+  reservations: Reservation[];
+  loading: boolean;
+  emptyLabel: string;
+  actionLabel?: string;
+  onCancel?: (reservation: Reservation) => void;
+}) {
+  const { t } = useLanguage();
+
+  return (
+    <section className="card overflow-hidden">
+      <div className="hidden grid-cols-6 border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600 md:grid">
+        <div>{t.date}</div>
+        <div>{t.time}</div>
+        <div>{t.room}</div>
+        <div>{t.seat}</div>
+        <div>{t.bookedBy}</div>
+        <div className="text-right">{t.manage}</div>
+      </div>
+      {loading ? (
+        <div className="p-8 text-center text-slate-500">{t.loading}...</div>
+      ) : reservations.length === 0 ? (
+        <div className="p-10 text-center text-slate-500">
+          <CalendarX className="mx-auto mb-3 text-slate-400" />
+          {emptyLabel}
+        </div>
+      ) : (
+        reservations.map((reservation) => (
+          <div key={reservation.id} className="grid gap-3 border-b border-slate-100 px-4 py-4 text-sm last:border-b-0 md:grid-cols-6 md:items-center">
+            <div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.date}</span>
+              <div className="font-medium text-slate-900">{reservation.date.slice(0, 10)}</div>
+            </div>
+            <div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.time}</span>
+              <div className="text-slate-600">{reservation.startTime}-{reservation.endTime}</div>
+            </div>
+            <div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.room}</span>
+              <div className="text-slate-600">{reservation.room?.name ?? reservation.roomId}</div>
+            </div>
+            <div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.seat}</span>
+              <div className="font-semibold text-slate-900">{reservation.seat?.label ?? reservation.seatId}</div>
+            </div>
+            <div>
+              <span className="text-xs font-semibold text-slate-400 md:hidden">{t.bookedBy}</span>
+              <div className="truncate text-slate-600">
+                {reservation.user ? `${reservation.user.firstName} ${reservation.user.lastName}` : "-"}
+              </div>
+            </div>
+            <div className="text-right">
+              {onCancel && actionLabel ? (
+                <button onClick={() => onCancel(reservation)} className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+                  {actionLabel}
+                </button>
+              ) : (
+                <span className="text-slate-400">-</span>
+              )}
+            </div>
+          </div>
+        ))
+      )}
+    </section>
+  );
+}
 
 export default function ReservationsPage() {
   const { t } = useLanguage();
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState<ViewMode>("mine");
+  const [periodMode, setPeriodMode] = useState<PeriodMode>("day");
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [roomId, setRoomId] = useState("");
+  const [periodDate, setPeriodDate] = useState(todayISO());
+  const [myReservations, setMyReservations] = useState<Reservation[]>([]);
+  const [browseReservations, setBrowseReservations] = useState<Reservation[]>([]);
+  const [myLoading, setMyLoading] = useState(true);
+  const [browseLoading, setBrowseLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
   const [cancelTarget, setCancelTarget] = useState<Reservation | null>(null);
   const [cancelling, setCancelling] = useState(false);
 
-  const load = () => {
-    setLoading(true);
-    api.myReservations().then(setReservations).finally(() => setLoading(false));
+  const periodLabel = useMemo(() => {
+    if (periodMode === "month") return monthValue(periodDate);
+    if (periodMode === "week") {
+      const range = weekRange(periodDate);
+      return `${range.startDate} - ${range.endDate}`;
+    }
+    return periodDate;
+  }, [periodDate, periodMode]);
+
+  const loadMine = () => {
+    setMyLoading(true);
+    api.myReservations().then(setMyReservations).finally(() => setMyLoading(false));
+  };
+
+  const loadBrowse = () => {
+    setBrowseLoading(true);
+    const params = new URLSearchParams();
+    if (roomId) params.set("roomId", roomId);
+    if (periodMode === "day") params.set("date", periodDate);
+    if (periodMode === "week") {
+      const range = weekRange(periodDate);
+      params.set("startDate", range.startDate);
+      params.set("endDate", range.endDate);
+    }
+    if (periodMode === "month") params.set("month", monthValue(periodDate));
+    api.reservations(params).then(setBrowseReservations).finally(() => setBrowseLoading(false));
   };
 
   useEffect(() => {
-    load();
+    loadMine();
+    api.rooms().then((data) => {
+      setRooms(data);
+      setRoomId(data[0]?.id ?? "");
+    });
   }, []);
+
+  useEffect(() => {
+    if (activeView === "browse") loadBrowse();
+  }, [activeView, periodDate, periodMode, roomId]);
 
   const cancel = async () => {
     if (!cancelTarget) return;
@@ -31,9 +167,10 @@ export default function ReservationsPage() {
     setCancelling(true);
     try {
       await api.cancelReservation(cancelTarget.id);
-      setMessage(t.cancelled);
+      setToastMessage(t.cancelled);
       setCancelTarget(null);
-      load();
+      loadMine();
+      if (activeView === "browse") loadBrowse();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : t.cancelFailed);
     } finally {
@@ -47,48 +184,85 @@ export default function ReservationsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-red-700">{t.reservations}</p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{t.myReservationsTitle}</h1>
-            <p className="mt-2 text-sm text-slate-600">{t.myReservationsDescription}</p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{t.reservationsTitle}</h1>
+            <p className="mt-2 text-sm text-slate-600">{t.reservationsDescription}</p>
           </div>
-          <button onClick={load} className="button-secondary flex items-center justify-center gap-2 px-4 py-3">
+          <button onClick={activeView === "mine" ? loadMine : loadBrowse} className="button-secondary flex items-center justify-center gap-2 px-4 py-3">
             <RefreshCcw size={18} />
             {t.refresh}
           </button>
         </div>
 
+        <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1">
+          {[
+            { value: "mine", label: t.myReservationsTab },
+            { value: "browse", label: t.browseReservationsTab }
+          ].map((item) => (
+            <button
+              key={item.value}
+              onClick={() => setActiveView(item.value as ViewMode)}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeView === item.value ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
         {message && <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">{message}</div>}
 
-        <section className="card overflow-hidden">
-          <div className="grid grid-cols-5 border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600">
-            <div>{t.date}</div>
-            <div>{t.time}</div>
-            <div>{t.room}</div>
-            <div>{t.seat}</div>
-            <div className="text-right">{t.manage}</div>
-          </div>
-          {loading ? (
-            <div className="p-8 text-center text-slate-500">{t.loading}...</div>
-          ) : reservations.length === 0 ? (
-            <div className="p-10 text-center text-slate-500">
-              <CalendarX className="mx-auto mb-3 text-slate-400" />
-              {t.emptyReservations}
+        {activeView === "browse" && (
+          <section className="card p-4 sm:p-5">
+            <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end">
+              <label>
+                <span className="mb-2 block text-sm font-semibold text-slate-700">{t.room}</span>
+                <select className="field px-3 py-3" value={roomId} onChange={(event) => setRoomId(event.target.value)}>
+                  <option value="">{t.allRooms}</option>
+                  {rooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
+                </select>
+              </label>
+              <label>
+                <span className="mb-2 block text-sm font-semibold text-slate-700">{t.viewBy}</span>
+                <select className="field px-3 py-3" value={periodMode} onChange={(event) => setPeriodMode(event.target.value as PeriodMode)}>
+                  <option value="day">{t.day}</option>
+                  <option value="week">{t.week}</option>
+                  <option value="month">{t.month}</option>
+                </select>
+              </label>
+              <label>
+                <span className="mb-2 block text-sm font-semibold text-slate-700">{periodMode === "month" ? t.month : t.date}</span>
+                <input
+                  className="field px-3 py-3"
+                  type={periodMode === "month" ? "month" : "date"}
+                  value={periodMode === "month" ? monthValue(periodDate) : periodDate}
+                  onChange={(event) => setPeriodDate(periodMode === "month" ? `${event.target.value}-01` : event.target.value)}
+                />
+              </label>
+              <button onClick={loadBrowse} className="button-primary flex items-center justify-center gap-2 px-4 py-3">
+                <Search size={18} />
+                {t.search}
+              </button>
             </div>
-          ) : (
-            reservations.map((reservation) => (
-              <div key={reservation.id} className="grid grid-cols-5 items-center border-b border-slate-100 px-4 py-4 text-sm last:border-b-0">
-                <div className="font-medium text-slate-900">{reservation.date.slice(0, 10)}</div>
-                <div className="text-slate-600">{reservation.startTime}-{reservation.endTime}</div>
-                <div className="text-slate-600">{reservation.room?.name ?? reservation.roomId}</div>
-                <div className="font-semibold text-slate-900">{reservation.seat?.label ?? reservation.seatId}</div>
-                <div className="text-right">
-                  <button onClick={() => setCancelTarget(reservation)} className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
-                    {t.cancel}
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </section>
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              {t.showing}: <span className="font-semibold text-slate-950">{periodLabel}</span>
+            </div>
+          </section>
+        )}
+
+        {activeView === "mine" ? (
+          <ReservationTable
+            reservations={myReservations}
+            loading={myLoading}
+            emptyLabel={t.emptyReservations}
+            actionLabel={t.cancel}
+            onCancel={setCancelTarget}
+          />
+        ) : (
+          <ReservationTable
+            reservations={browseReservations}
+            loading={browseLoading}
+            emptyLabel={t.emptyBrowseReservations}
+          />
+        )}
 
         <ConfirmModal
           open={Boolean(cancelTarget)}
@@ -124,6 +298,7 @@ export default function ReservationsPage() {
             </dl>
           )}
         </ConfirmModal>
+        <Toast open={Boolean(toastMessage)} message={toastMessage} onClose={() => setToastMessage("")} />
       </div>
     </AppShell>
   );

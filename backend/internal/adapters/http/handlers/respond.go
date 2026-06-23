@@ -14,6 +14,8 @@ func respondError(c *gin.Context, err error) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "invalid email, username, or password"})
 	case errors.Is(err, domain.ErrForbidden):
 		c.JSON(http.StatusForbidden, gin.H{"message": "forbidden"})
+	case errors.Is(err, domain.ErrInactiveResource):
+		c.JSON(http.StatusConflict, gin.H{"message": "booking is disabled for this room or seat"})
 	case errors.Is(err, domain.ErrNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"message": "resource not found"})
 	case errors.Is(err, domain.ErrReservationOverlap):
