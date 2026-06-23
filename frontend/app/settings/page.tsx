@@ -24,6 +24,7 @@ export default function SettingsPage() {
   // Profile Form
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [department, setDepartment] = useState("");
   const [studentId, setStudentId] = useState("");
 
@@ -60,6 +61,7 @@ export default function SettingsPage() {
       setUser(u);
       setFirstName(u.firstName);
       setLastName(u.lastName);
+      setDisplayName(u.displayName || "");
       setDepartment(u.department);
       setStudentId(u.studentId);
 
@@ -75,7 +77,7 @@ export default function SettingsPage() {
     setSaving(true);
     setError("");
     try {
-      const u = await api.updateProfile({ firstName, lastName, department, studentId });
+      const u = await api.updateProfile({ firstName, lastName, displayName, department, studentId });
       setUser(u);
       setToastMessage("Profile updated successfully");
     } catch (err) {
@@ -192,7 +194,7 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <h2 className="text-xl font-semibold text-slate-950">
-                        {user ? `${user.firstName} ${user.lastName}` : t.loading}
+                        {user ? (user.displayName || `${user.firstName} ${user.lastName}`) : t.loading}
                       </h2>
                       <p className="text-sm text-slate-500">{user?.email}</p>
                       <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase text-slate-600">
@@ -230,6 +232,11 @@ export default function SettingsPage() {
                         <input type="text" required value={lastName} onChange={e => setLastName(e.target.value)} className="field w-full px-3 py-2" />
                       </label>
                     </div>
+                    <label className="block">
+                      <span className="mb-1 block text-sm font-semibold text-slate-700">Display Name</span>
+                      <input type="text" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Leave blank to use full name" className="field w-full px-3 py-2" />
+                      <p className="mt-1 text-xs text-slate-500">This name will be shown on the platform instead of your full name.</p>
+                    </label>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="block">
                         <span className="mb-1 block text-sm font-semibold text-slate-700">Student ID</span>

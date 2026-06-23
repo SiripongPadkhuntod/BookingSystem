@@ -57,7 +57,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold text-slate-900">
-                {user ? `${user.firstName} ${user.lastName}` : t.loading}
+                {user ? (user.displayName || `${user.firstName} ${user.lastName}`) : t.loading}
               </div>
               <div className="text-xs uppercase text-slate-500">{user?.role ?? "user"}</div>
             </div>

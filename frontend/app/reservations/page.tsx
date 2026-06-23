@@ -86,7 +86,7 @@ function ReservationTable({
             <div>
               <span className="text-xs font-semibold text-slate-400 md:hidden">{t.bookedBy}</span>
               <div className="truncate text-slate-600">
-                {reservation.user ? `${reservation.user.firstName} ${reservation.user.lastName}` : "-"}
+                {reservation.user ? (reservation.user.displayName || `${reservation.user.firstName} ${reservation.user.lastName}`) : "-"}
               </div>
             </div>
             <div className="text-right">

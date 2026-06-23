@@ -45,6 +45,7 @@ export default function AdminPage() {
     return users.filter((u) => 
       u.firstName.toLowerCase().includes(q) || 
       u.lastName.toLowerCase().includes(q) || 
+      (u.displayName && u.displayName.toLowerCase().includes(q)) ||
       u.email.toLowerCase().includes(q) ||
       u.studentId.toLowerCase().includes(q)
     );
@@ -336,7 +337,7 @@ export default function AdminPage() {
                 <div key={user.id} className="rounded-xl border border-slate-200 bg-white p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold text-slate-950">{user.firstName} {user.lastName}</div>
+                      <div className="truncate text-sm font-semibold text-slate-950">{user.displayName || `${user.firstName} ${user.lastName}`}</div>
                       <div className="truncate text-xs text-slate-500">{user.email}</div>
                     </div>
                     <ShieldCheck size={18} className={user.role === "admin" ? "text-red-700" : "text-slate-300"} />
@@ -377,7 +378,7 @@ export default function AdminPage() {
                 <div key={user.id} className={`rounded-xl border p-4 ${user.isActive ? "border-slate-200 bg-white" : "border-red-100 bg-red-50/30 opacity-75"}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold text-slate-950">{user.firstName} {user.lastName}</div>
+                      <div className="truncate text-sm font-semibold text-slate-950">{user.displayName || `${user.firstName} ${user.lastName}`}</div>
                       <div className="truncate text-xs text-slate-500">{user.email}</div>
                     </div>
                   </div>

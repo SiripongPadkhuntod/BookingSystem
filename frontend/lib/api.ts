@@ -58,7 +58,7 @@ export const api = {
     studentId: string;
   }) => request<AuthResult>("/api/auth/register", { method: "POST", body: JSON.stringify(body), auth: false }),
   me: () => request<User>("/api/auth/me"),
-  updateProfile: (body: { firstName: string; lastName: string; department: string; studentId: string }) => 
+  updateProfile: (body: { firstName: string; lastName: string; displayName: string; department: string; studentId: string }) => 
     request<User>("/api/auth/me", { method: "PUT", body: JSON.stringify(body) }),
   changePassword: (body: { currentPassword: string; newPassword: string }) => 
     request<void>("/api/auth/me/password", { method: "PUT", body: JSON.stringify(body) }),

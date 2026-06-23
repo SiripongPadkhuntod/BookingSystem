@@ -30,10 +30,11 @@ type LoginInput struct {
 }
 
 type UpdateProfileInput struct {
-	FirstName  string `json:"firstName"`
-	LastName   string `json:"lastName"`
-	Department string `json:"department"`
-	StudentID  string `json:"studentId"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	DisplayName string `json:"displayName"`
+	Department  string `json:"department"`
+	StudentID   string `json:"studentId"`
 }
 
 type ChangePasswordInput struct {
@@ -111,6 +112,7 @@ func (s AuthService) UpdateProfile(ctx context.Context, userID string, input Upd
 
 	user.FirstName = strings.TrimSpace(input.FirstName)
 	user.LastName = strings.TrimSpace(input.LastName)
+	user.DisplayName = strings.TrimSpace(input.DisplayName)
 	user.Department = strings.TrimSpace(input.Department)
 	user.StudentID = strings.TrimSpace(input.StudentID)
 

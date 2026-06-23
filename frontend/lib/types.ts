@@ -6,6 +6,7 @@ export type User = {
   username: string;
   firstName: string;
   lastName: string;
+  displayName?: string;
   studentId: string;
   department: string;
   role: Role;
