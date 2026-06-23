@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/AppShell";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n";
 import type { Reservation } from "@/lib/types";
@@ -12,6 +13,8 @@ export default function ReservationsPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [cancelTarget, setCancelTarget] = useState<Reservation | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -22,14 +25,19 @@ export default function ReservationsPage() {
     load();
   }, []);
 
-  const cancel = async (id: string) => {
+  const cancel = async () => {
+    if (!cancelTarget) return;
     setMessage("");
+    setCancelling(true);
     try {
-      await api.cancelReservation(id);
+      await api.cancelReservation(cancelTarget.id);
       setMessage(t.cancelled);
+      setCancelTarget(null);
       load();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : t.cancelFailed);
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -73,7 +81,7 @@ export default function ReservationsPage() {
                 <div className="text-slate-600">{reservation.room?.name ?? reservation.roomId}</div>
                 <div className="font-semibold text-slate-900">{reservation.seat?.label ?? reservation.seatId}</div>
                 <div className="text-right">
-                  <button onClick={() => cancel(reservation.id)} className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+                  <button onClick={() => setCancelTarget(reservation)} className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
                     {t.cancel}
                   </button>
                 </div>
@@ -81,6 +89,41 @@ export default function ReservationsPage() {
             ))
           )}
         </section>
+
+        <ConfirmModal
+          open={Boolean(cancelTarget)}
+          title={t.confirmCancelTitle}
+          description={t.confirmCancelDescription}
+          confirmLabel={t.cancelReservation}
+          cancelLabel={t.back}
+          tone="danger"
+          loading={cancelling}
+          onConfirm={cancel}
+          onClose={() => {
+            if (!cancelling) setCancelTarget(null);
+          }}
+        >
+          {cancelTarget && (
+            <dl className="grid gap-3 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-slate-500">{t.date}</dt>
+                <dd className="font-semibold text-slate-950">{cancelTarget.date.slice(0, 10)}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-slate-500">{t.time}</dt>
+                <dd className="font-semibold text-slate-950">{cancelTarget.startTime}-{cancelTarget.endTime}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-slate-500">{t.room}</dt>
+                <dd className="font-semibold text-slate-950">{cancelTarget.room?.name ?? cancelTarget.roomId}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-slate-500">{t.seat}</dt>
+                <dd className="font-semibold text-slate-950">{cancelTarget.seat?.label ?? cancelTarget.seatId}</dd>
+              </div>
+            </dl>
+          )}
+        </ConfirmModal>
       </div>
     </AppShell>
   );

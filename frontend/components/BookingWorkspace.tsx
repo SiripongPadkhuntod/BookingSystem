@@ -3,9 +3,16 @@
 import { CalendarDays, CheckCircle2, Clock, DoorOpen, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { SvgSeatMap } from "@/components/SvgSeatMap";
 import { useLanguage } from "@/lib/i18n";
 import { nextSlot, timeSlots, todayISO } from "@/lib/time";
 import type { Reservation, Room, Seat } from "@/lib/types";
+
+function slotIndex(value: string) {
+  const index = timeSlots.indexOf(value);
+  return index >= 0 ? index : 0;
+}
 
 export function BookingWorkspace() {
   const { t } = useLanguage();
@@ -19,6 +26,7 @@ export function BookingWorkspace() {
   const [seatId, setSeatId] = useState("");
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -42,10 +50,6 @@ export function BookingWorkspace() {
     }).finally(() => setLoading(false));
   }, [roomId, date]);
 
-  useEffect(() => {
-    setEndTime(nextSlot(startTime));
-  }, [startTime]);
-
   const reservedSeatIds = useMemo(() => {
     return new Set(
       reservations
@@ -56,17 +60,38 @@ export function BookingWorkspace() {
 
   const selectedRoom = rooms.find((room) => room.id === roomId);
   const selectedSeat = seats.find((seat) => seat.id === seatId);
+  const startIndex = slotIndex(startTime);
+  const endIndex = slotIndex(endTime);
 
-  const submit = async () => {
+  const updateStartTime = (index: number) => {
+    const nextStart = timeSlots[Math.min(index, timeSlots.length - 2)] ?? "08:00";
+    setStartTime(nextStart);
+    if (slotIndex(endTime) <= slotIndex(nextStart)) {
+      setEndTime(nextSlot(nextStart));
+    }
+  };
+
+  const updateEndTime = (index: number) => {
+    const safeIndex = Math.max(index, startIndex + 1);
+    setEndTime(timeSlots[Math.min(safeIndex, timeSlots.length - 1)] ?? "08:30");
+  };
+
+  const openConfirm = () => {
     if (!seatId) {
       setMessage(t.selectSeatFirst);
       return;
     }
+    setMessage("");
+    setConfirmOpen(true);
+  };
+
+  const submit = async () => {
     setSaving(true);
     setMessage("");
     try {
       await api.createReservation({ roomId, seatId, date, startTime, endTime, note });
       setMessage(t.bookingSuccess);
+      setConfirmOpen(false);
       setNote("");
       const updated = await api.reservations(new URLSearchParams({ roomId, date }));
       setReservations(updated);
@@ -87,12 +112,12 @@ export function BookingWorkspace() {
           <p className="mt-2 text-sm text-slate-600">{t.bookingDescription}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
-          {selectedRoom?.name ?? t.chooseRoom} · {date} · {startTime}-{endTime}
+          {selectedRoom?.name ?? t.chooseRoom} · {date}
         </div>
       </div>
 
       <section className="card p-4 sm:p-5">
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <label>
             <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700"><DoorOpen size={16} /> {t.room}</span>
             <select className="field px-3 py-3" value={roomId} onChange={(event) => setRoomId(event.target.value)}>
@@ -102,18 +127,6 @@ export function BookingWorkspace() {
           <label>
             <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700"><CalendarDays size={16} /> {t.date}</span>
             <input className="field px-3 py-3" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-          </label>
-          <label>
-            <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700"><Clock size={16} /> {t.start}</span>
-            <select className="field px-3 py-3" value={startTime} onChange={(event) => setStartTime(event.target.value)}>
-              {timeSlots.slice(0, -1).map((slot) => <option key={slot} value={slot}>{slot}</option>)}
-            </select>
-          </label>
-          <label>
-            <span className="mb-2 block text-sm font-semibold text-slate-700">{t.end}</span>
-            <select className="field px-3 py-3" value={endTime} onChange={(event) => setEndTime(event.target.value)}>
-              {timeSlots.filter((slot) => slot > startTime).map((slot) => <option key={slot} value={slot}>{slot}</option>)}
-            </select>
           </label>
         </div>
       </section>
@@ -128,29 +141,13 @@ export function BookingWorkspace() {
             {loading && <Loader2 className="animate-spin text-slate-400" />}
           </div>
 
-          <div className="relative min-h-[460px] rounded-xl border border-slate-200 bg-slate-50">
-            {seats.map((seat) => {
-              const reserved = reservedSeatIds.has(seat.id);
-              const selected = seat.id === seatId;
-              return (
-                <button
-                  key={seat.id}
-                  disabled={reserved}
-                  onClick={() => setSeatId(seat.id)}
-                  className={`absolute flex h-14 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border text-sm font-semibold transition ${
-                    reserved
-                      ? "border-slate-200 bg-slate-200 text-slate-400"
-                      : selected
-                        ? "border-red-700 bg-red-700 text-white shadow-lg"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-red-200 hover:bg-red-50"
-                  }`}
-                  style={{ left: `${seat.position.x}%`, top: `${seat.position.y}%` }}
-                >
-                  {seat.label}
-                </button>
-              );
-            })}
-          </div>
+          <SvgSeatMap
+            seats={seats}
+            reservedSeatIds={reservedSeatIds}
+            selectedSeatId={seatId}
+            roomCode={selectedRoom?.code}
+            onSelectSeat={setSeatId}
+          />
         </section>
 
         <aside className="card p-5">
@@ -170,6 +167,43 @@ export function BookingWorkspace() {
             </div>
           </dl>
 
+          <div className="mt-5 space-y-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+              <Clock size={16} />
+              {t.timeRange}
+            </div>
+            <label className="block">
+              <div className="mb-2 flex items-center justify-between gap-4 text-sm">
+                <span className="font-semibold text-slate-700">{t.start}</span>
+                <span className="rounded-lg border border-slate-200 bg-white px-2 py-1 font-semibold text-slate-950">{startTime}</span>
+              </div>
+              <input
+                className="w-full accent-red-700"
+                type="range"
+                min={0}
+                max={timeSlots.length - 2}
+                step={1}
+                value={startIndex}
+                onChange={(event) => updateStartTime(Number(event.target.value))}
+              />
+            </label>
+            <label className="block">
+              <div className="mb-2 flex items-center justify-between gap-4 text-sm">
+                <span className="font-semibold text-slate-700">{t.end}</span>
+                <span className="rounded-lg border border-slate-200 bg-white px-2 py-1 font-semibold text-slate-950">{endTime}</span>
+              </div>
+              <input
+                className="w-full accent-red-700"
+                type="range"
+                min={startIndex + 1}
+                max={timeSlots.length - 1}
+                step={1}
+                value={Math.max(endIndex, startIndex + 1)}
+                onChange={(event) => updateEndTime(Number(event.target.value))}
+              />
+            </label>
+          </div>
+
           <label className="mt-5 block">
             <span className="mb-2 block text-sm font-semibold text-slate-700">{t.note}</span>
             <textarea className="field min-h-28 px-3 py-3" value={note} onChange={(event) => setNote(event.target.value)} placeholder={t.notePlaceholder} />
@@ -181,12 +215,46 @@ export function BookingWorkspace() {
             </div>
           )}
 
-          <button onClick={submit} disabled={saving} className="button-primary mt-5 flex w-full items-center justify-center gap-2 px-4 py-3">
+          <button onClick={openConfirm} disabled={saving} className="button-primary mt-5 flex w-full items-center justify-center gap-2 px-4 py-3">
             <CheckCircle2 size={18} />
             {saving ? t.bookingNow : t.confirmBooking}
           </button>
         </aside>
       </div>
+
+      <ConfirmModal
+        open={confirmOpen}
+        title={t.confirmBookingTitle}
+        description={t.confirmBookingDescription}
+        confirmLabel={t.confirmBooking}
+        cancelLabel={t.back}
+        loading={saving}
+        onConfirm={submit}
+        onClose={() => {
+          if (!saving) setConfirmOpen(false);
+        }}
+      >
+        <dl className="grid gap-3 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">{t.room}</dt>
+            <dd className="font-semibold text-slate-950">{selectedRoom?.name ?? "-"}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">{t.seat}</dt>
+            <dd className="font-semibold text-slate-950">{selectedSeat?.label ?? "-"}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">{t.timeRange}</dt>
+            <dd className="font-semibold text-slate-950">{date} · {startTime}-{endTime}</dd>
+          </div>
+          {note && (
+            <div>
+              <dt className="text-slate-500">{t.note}</dt>
+              <dd className="mt-1 font-medium text-slate-800">{note}</dd>
+            </div>
+          )}
+        </dl>
+      </ConfirmModal>
     </div>
   );
 }

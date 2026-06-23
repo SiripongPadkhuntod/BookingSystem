@@ -25,9 +25,11 @@ type ReservationRepository interface {
 }
 
 type ReservationFilter struct {
-	UserID string
-	RoomID string
-	SeatID string
-	Date   *time.Time
-	Month  string
+	UserID    string
+	RoomID    string
+	SeatID    string
+	Date      *time.Time
+	StartDate *time.Time
+	EndDate   *time.Time
+	Month     string
 }

@@ -47,6 +47,22 @@ func (h ReservationHandler) List(c *gin.Context) {
 		}
 		filter.Date = &date
 	}
+	if startDateValue := c.Query("startDate"); startDateValue != "" {
+		startDate, err := time.Parse("2006-01-02", startDateValue)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid startDate"})
+			return
+		}
+		filter.StartDate = &startDate
+	}
+	if endDateValue := c.Query("endDate"); endDateValue != "" {
+		endDate, err := time.Parse("2006-01-02", endDateValue)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid endDate"})
+			return
+		}
+		filter.EndDate = &endDate
+	}
 	reservations, err := h.reservations.List(c.Request.Context(), filter)
 	if err != nil {
 		respondError(c, err)

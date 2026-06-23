@@ -92,6 +92,14 @@ func (r ReservationRepository) List(ctx context.Context, filter ports.Reservatio
 		args = append(args, *filter.Date)
 		where = append(where, fmt.Sprintf("rv.reservation_date = $%d", len(args)))
 	}
+	if filter.StartDate != nil {
+		args = append(args, *filter.StartDate)
+		where = append(where, fmt.Sprintf("rv.reservation_date >= $%d", len(args)))
+	}
+	if filter.EndDate != nil {
+		args = append(args, *filter.EndDate)
+		where = append(where, fmt.Sprintf("rv.reservation_date <= $%d", len(args)))
+	}
 	if filter.Month != "" {
 		args = append(args, filter.Month)
 		where = append(where, fmt.Sprintf("to_char(rv.reservation_date, 'YYYY-MM') = $%d", len(args)))
