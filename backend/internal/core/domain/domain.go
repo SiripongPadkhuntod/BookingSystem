@@ -75,6 +75,7 @@ var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrForbidden          = errors.New("forbidden")
 	ErrNotFound           = errors.New("not found")
+	ErrInactiveResource   = errors.New("booking is disabled for this room or seat")
 	ErrReservationOverlap = errors.New("seat is already reserved for this time")
 	ErrInvalidTimeRange   = errors.New("invalid reservation time range")
 )

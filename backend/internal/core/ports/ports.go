@@ -24,6 +24,17 @@ type ReservationRepository interface {
 	Cancel(ctx context.Context, reservationID string, actorID string, actorRole domain.Role) error
 }
 
+type AdminRepository interface {
+	ListRooms(ctx context.Context) ([]domain.Room, error)
+	CreateRoom(ctx context.Context, room domain.Room) (domain.Room, error)
+	UpdateRoom(ctx context.Context, room domain.Room) (domain.Room, error)
+	ListSeats(ctx context.Context, roomID string) ([]domain.Seat, error)
+	CreateSeat(ctx context.Context, seat domain.Seat) (domain.Seat, error)
+	UpdateSeat(ctx context.Context, seat domain.Seat) (domain.Seat, error)
+	ListUsers(ctx context.Context) ([]domain.User, error)
+	UpdateUserRole(ctx context.Context, userID string, role domain.Role) (domain.User, error)
+}
+
 type ReservationFilter struct {
 	UserID    string
 	RoomID    string

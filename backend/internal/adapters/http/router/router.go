@@ -13,6 +13,7 @@ type Handlers struct {
 	Auth         handlers.AuthHandler
 	Catalog      handlers.CatalogHandler
 	Reservations handlers.ReservationHandler
+	Admin        handlers.AdminHandler
 }
 
 func New(handlers Handlers, tokens security.TokenService, globalMiddleware ...gin.HandlerFunc) *gin.Engine {
@@ -40,6 +41,17 @@ func New(handlers Handlers, tokens security.TokenService, globalMiddleware ...gi
 	protected.GET("/reservations/me", handlers.Reservations.MyReservations)
 	protected.POST("/reservations", handlers.Reservations.Create)
 	protected.DELETE("/reservations/:id", handlers.Reservations.Cancel)
+
+	admin := protected.Group("/admin")
+	admin.Use(middleware.RequireAdmin())
+	admin.GET("/rooms", handlers.Admin.ListRooms)
+	admin.POST("/rooms", handlers.Admin.CreateRoom)
+	admin.PUT("/rooms/:roomID", handlers.Admin.UpdateRoom)
+	admin.GET("/rooms/:roomID/seats", handlers.Admin.ListSeats)
+	admin.POST("/rooms/:roomID/seats", handlers.Admin.CreateSeat)
+	admin.PUT("/rooms/:roomID/seats/:seatID", handlers.Admin.UpdateSeat)
+	admin.GET("/users", handlers.Admin.ListUsers)
+	admin.PUT("/users/:id/role", handlers.Admin.UpdateUserRole)
 
 	return engine
 }

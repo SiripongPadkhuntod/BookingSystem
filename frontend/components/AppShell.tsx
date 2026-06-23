@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { CalendarDays, LayoutDashboard, ListChecks, LogOut, Settings, UserRound } from "lucide-react";
+import { CalendarDays, LayoutDashboard, ListChecks, LogOut, Settings, ShieldCheck, UserRound } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import { api, clearToken, getToken } from "@/lib/api";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
@@ -14,6 +14,8 @@ const navItems = [
   { href: "/reservations", labelKey: "reservations", icon: ListChecks },
   { href: "/settings", labelKey: "settings", icon: Settings }
 ] as const;
+
+const adminNavItem = { href: "/admin", labelKey: "admin", icon: ShieldCheck } as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -64,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <nav className="mt-7 space-y-1.5">
           <div className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{t.menu}</div>
-          {navItems.map((item) => {
+          {[...navItems, ...(user?.role === "admin" ? [adminNavItem] : [])].map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
             return (
@@ -110,7 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <nav className="mt-3 flex gap-2 overflow-x-auto">
-          {navItems.map((item) => (
+          {[...navItems, ...(user?.role === "admin" ? [adminNavItem] : [])].map((item) => (
             <Link
               key={item.href}
               href={item.href}

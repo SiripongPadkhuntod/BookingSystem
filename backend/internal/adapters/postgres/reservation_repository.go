@@ -48,6 +48,25 @@ func (r ReservationRepository) Create(ctx context.Context, reservation domain.Re
 		return domain.Reservation{}, domain.ErrReservationOverlap
 	}
 
+	var active bool
+	err = tx.QueryRow(ctx, `
+		SELECT EXISTS (
+			SELECT 1
+			FROM seats s
+			JOIN rooms rm ON rm.id = s.room_id
+			WHERE s.id = $1
+				AND s.room_id = $2
+				AND s.is_active = true
+				AND rm.is_active = true
+		)
+	`, reservation.SeatID, reservation.RoomID).Scan(&active)
+	if err != nil {
+		return domain.Reservation{}, err
+	}
+	if !active {
+		return domain.Reservation{}, domain.ErrInactiveResource
+	}
+
 	query := `
 		INSERT INTO reservations (id, user_id, room_id, seat_id, reservation_date, start_time, end_time, note, status)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { SvgSeatMap } from "@/components/SvgSeatMap";
+import { Toast } from "@/components/Toast";
 import { useLanguage } from "@/lib/i18n";
 import { nextSlot, timeSlots, todayISO } from "@/lib/time";
 import type { Reservation, Room, Seat } from "@/lib/types";
@@ -26,6 +27,7 @@ export function BookingWorkspace() {
   const [seatId, setSeatId] = useState("");
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -90,7 +92,7 @@ export function BookingWorkspace() {
     setMessage("");
     try {
       await api.createReservation({ roomId, seatId, date, startTime, endTime, note });
-      setMessage(t.bookingSuccess);
+      setToastMessage(t.bookingSuccess);
       setConfirmOpen(false);
       setNote("");
       const updated = await api.reservations(new URLSearchParams({ roomId, date }));
@@ -255,6 +257,7 @@ export function BookingWorkspace() {
           )}
         </dl>
       </ConfirmModal>
+      <Toast open={Boolean(toastMessage)} message={toastMessage} onClose={() => setToastMessage("")} />
     </div>
   );
 }
