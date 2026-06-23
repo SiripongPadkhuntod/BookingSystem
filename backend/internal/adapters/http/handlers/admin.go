@@ -113,3 +113,17 @@ func (h AdminHandler) UpdateUserRole(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, user)
 }
+
+func (h AdminHandler) UpdateUserStatus(c *gin.Context) {
+	var input services.UpdateStatusInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
+		return
+	}
+	user, err := h.admin.UpdateUserStatus(c.Request.Context(), c.Param("id"), input.IsActive)
+	if err != nil {
+		respondError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}

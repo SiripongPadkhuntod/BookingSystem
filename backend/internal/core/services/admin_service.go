@@ -34,6 +34,10 @@ type UpdateRoleInput struct {
 	Role domain.Role `json:"role"`
 }
 
+type UpdateStatusInput struct {
+	IsActive bool `json:"isActive"`
+}
+
 func NewAdminService(admin ports.AdminRepository) AdminService {
 	return AdminService{admin: admin}
 }
@@ -109,4 +113,8 @@ func (s AdminService) UpdateUserRole(ctx context.Context, userID string, role do
 		return domain.User{}, domain.ErrForbidden
 	}
 	return s.admin.UpdateUserRole(ctx, userID, role)
+}
+
+func (s AdminService) UpdateUserStatus(ctx context.Context, userID string, isActive bool) (domain.User, error) {
+	return s.admin.UpdateUserStatus(ctx, userID, isActive)
 }

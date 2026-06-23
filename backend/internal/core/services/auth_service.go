@@ -29,6 +29,18 @@ type LoginInput struct {
 	Password   string `json:"password"`
 }
 
+type UpdateProfileInput struct {
+	FirstName  string `json:"firstName"`
+	LastName   string `json:"lastName"`
+	Department string `json:"department"`
+	StudentID  string `json:"studentId"`
+}
+
+type ChangePasswordInput struct {
+	CurrentPassword string `json:"currentPassword"`
+	NewPassword     string `json:"newPassword"`
+}
+
 type AuthResult struct {
 	Token string      `json:"token"`
 	User  domain.User `json:"user"`
@@ -76,6 +88,9 @@ func (s AuthService) Login(ctx context.Context, input LoginInput) (AuthResult, e
 	if !security.CheckPassword(user.PasswordHash, input.Password) {
 		return AuthResult{}, domain.ErrInvalidCredentials
 	}
+	if !user.IsActive {
+		return AuthResult{}, domain.ErrForbidden
+	}
 
 	token, err := s.tokens.Generate(user)
 	if err != nil {
@@ -86,4 +101,49 @@ func (s AuthService) Login(ctx context.Context, input LoginInput) (AuthResult, e
 
 func (s AuthService) Me(ctx context.Context, userID string) (domain.User, error) {
 	return s.users.FindByID(ctx, userID)
+}
+
+func (s AuthService) UpdateProfile(ctx context.Context, userID string, input UpdateProfileInput) (domain.User, error) {
+	user, err := s.users.FindByID(ctx, userID)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	user.FirstName = strings.TrimSpace(input.FirstName)
+	user.LastName = strings.TrimSpace(input.LastName)
+	user.Department = strings.TrimSpace(input.Department)
+	user.StudentID = strings.TrimSpace(input.StudentID)
+
+	return s.users.Update(ctx, user)
+}
+
+func (s AuthService) ChangePassword(ctx context.Context, userID string, input ChangePasswordInput) error {
+	user, err := s.users.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if !security.CheckPassword(user.PasswordHash, input.CurrentPassword) {
+		return domain.ErrIncorrectPassword
+	}
+
+	newHash, err := security.HashPassword(input.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	user.PasswordHash = newHash
+	_, err = s.users.Update(ctx, user)
+	return err
+}
+
+func (s AuthService) DeactivateAccount(ctx context.Context, userID string) error {
+	user, err := s.users.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	user.IsActive = false
+	_, err = s.users.Update(ctx, user)
+	return err
 }

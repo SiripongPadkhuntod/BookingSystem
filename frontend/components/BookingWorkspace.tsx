@@ -28,6 +28,7 @@ export function BookingWorkspace() {
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
   const [toastMessage, setToastMessage] = useState("");
+  const [toastTone, setToastTone] = useState<"success" | "error">("success");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -92,6 +93,7 @@ export function BookingWorkspace() {
     setMessage("");
     try {
       await api.createReservation({ roomId, seatId, date, startTime, endTime, note });
+      setToastTone("success");
       setToastMessage(t.bookingSuccess);
       setConfirmOpen(false);
       setNote("");
@@ -99,11 +101,15 @@ export function BookingWorkspace() {
       setReservations(updated);
       setSeatId("");
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : t.bookingFailed);
+      setConfirmOpen(false);
+      setToastTone("error");
+      setToastMessage(err instanceof Error ? err.message : t.bookingFailed);
     } finally {
       setSaving(false);
     }
   };
+
+  const isSeatReserved = seatId ? reservedSeatIds.has(seatId) : false;
 
   return (
     <div className="space-y-6">
@@ -257,7 +263,7 @@ export function BookingWorkspace() {
           )}
         </dl>
       </ConfirmModal>
-      <Toast open={Boolean(toastMessage)} message={toastMessage} onClose={() => setToastMessage("")} />
+      <Toast open={Boolean(toastMessage)} message={toastMessage} tone={toastTone} onClose={() => setToastMessage("")} />
     </div>
   );
 }

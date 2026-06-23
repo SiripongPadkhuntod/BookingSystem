@@ -12,6 +12,8 @@ func respondError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrInvalidCredentials):
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "invalid email, username, or password"})
+	case errors.Is(err, domain.ErrIncorrectPassword):
+		c.JSON(http.StatusBadRequest, gin.H{"message": "incorrect current password"})
 	case errors.Is(err, domain.ErrForbidden):
 		c.JSON(http.StatusForbidden, gin.H{"message": "forbidden"})
 	case errors.Is(err, domain.ErrInactiveResource):

@@ -9,6 +9,7 @@ export type User = {
   studentId: string;
   department: string;
   role: Role;
+  isActive: boolean;
 };
 
 export type Room = {
