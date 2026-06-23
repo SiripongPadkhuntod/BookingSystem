@@ -18,6 +18,7 @@ type UpsertRoomInput struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Floor       string `json:"floor"`
+	SvgMap      string `json:"svgMap"`
 	IsActive    bool   `json:"isActive"`
 }
 
@@ -53,6 +54,7 @@ func (s AdminService) CreateRoom(ctx context.Context, input UpsertRoomInput) (do
 		Name:        strings.TrimSpace(input.Name),
 		Description: strings.TrimSpace(input.Description),
 		Floor:       strings.TrimSpace(input.Floor),
+		SvgMap:      strings.TrimSpace(input.SvgMap),
 		IsActive:    input.IsActive,
 	}
 	return s.admin.CreateRoom(ctx, room)
@@ -65,6 +67,7 @@ func (s AdminService) UpdateRoom(ctx context.Context, id string, input UpsertRoo
 		Name:        strings.TrimSpace(input.Name),
 		Description: strings.TrimSpace(input.Description),
 		Floor:       strings.TrimSpace(input.Floor),
+		SvgMap:      strings.TrimSpace(input.SvgMap),
 		IsActive:    input.IsActive,
 	}
 	return s.admin.UpdateRoom(ctx, room)

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CalendarDays, LayoutDashboard, ListChecks, LogOut, Settings, ShieldCheck, UserRound, Sparkles, Menu, X, ChevronRight, Shield, Moon, Sun } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
-import { api, clearToken, getToken } from "@/lib/api";
+import { api, clearToken, getToken, getCachedUser, subscribeUserCache } from "@/lib/api";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { useLanguage } from "@/lib/i18n";
 import type { User } from "@/lib/types";
@@ -22,9 +22,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useLanguage();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(getCachedUser());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNightMode, setIsNightMode] = useState(false);
+
+  useEffect(() => {
+    return subscribeUserCache((updatedUser) => {
+      setUser(updatedUser);
+    });
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode') === 'true';
@@ -67,9 +73,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const initials = user ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}` : "U";
 
   return (
-    <div className={`app-shell ${isNightMode ? 'app-shell--dark' : 'app-shell--light'}`}>
+    <div className="app-shell">
       {/* Mobile Top Bar */}
-      <header className={`app-mobile-header ${isNightMode ? 'app-mobile-header--dark' : ''}`}>
+      <header className="app-mobile-header">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="app-mobile-menu-btn"
@@ -88,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       {/* Sidebar */}
-      <aside className={`app-sidebar ${isMenuOpen ? 'app-sidebar--open' : ''} ${isNightMode ? 'app-sidebar--dark' : ''}`}>
+      <aside className={`app-sidebar ${isMenuOpen ? 'app-sidebar--open' : ''}`}>
         <div className="flex h-full flex-col px-5 py-6 overflow-y-auto dark:bg-slate-900/50">
           {/* Logo */}
           <div className="mb-8 flex items-center gap-3">
@@ -175,7 +181,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className={`app-main ${isNightMode ? 'app-main--dark' : ''}`}>
+      <main className="app-main">
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}

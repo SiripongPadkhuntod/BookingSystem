@@ -1309,7 +1309,7 @@ a {
   color: #0f172a;
 }
 
-.app-shell--dark {
+.dark .app-shell {
   background: #0a0e1a;
   color: #e2e8f0;
 }
@@ -1336,7 +1336,7 @@ a {
   z-index: 50;
 }
 
-.app-mobile-header--dark {
+.dark .app-mobile-header {
   background: rgba(15, 20, 35, 0.95);
   border-color: rgba(255, 255, 255, 0.06);
   color: #e2e8f0;
@@ -1361,7 +1361,7 @@ a {
   transition: all 0.2s;
 }
 
-.app-shell--dark .app-mobile-menu-btn {
+.dark .app-mobile-menu-btn {
   border-color: rgba(255, 255, 255, 0.1);
   color: #e2e8f0;
 }

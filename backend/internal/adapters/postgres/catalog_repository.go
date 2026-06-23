@@ -17,7 +17,7 @@ func NewCatalogRepository(db *pgxpool.Pool) CatalogRepository {
 
 func (r CatalogRepository) ListRooms(ctx context.Context) ([]domain.Room, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT id, code, name, description, floor, is_active
+		SELECT id, code, name, description, floor, svg_map, is_active
 		FROM rooms
 		WHERE is_active = true
 		ORDER BY code
@@ -30,7 +30,7 @@ func (r CatalogRepository) ListRooms(ctx context.Context) ([]domain.Room, error)
 	rooms := []domain.Room{}
 	for rows.Next() {
 		room := domain.Room{}
-		if err := rows.Scan(&room.ID, &room.Code, &room.Name, &room.Description, &room.Floor, &room.IsActive); err != nil {
+		if err := rows.Scan(&room.ID, &room.Code, &room.Name, &room.Description, &room.Floor, &room.SvgMap, &room.IsActive); err != nil {
 			return nil, err
 		}
 		rooms = append(rooms, room)

@@ -2,6 +2,7 @@
 
 import { AppShell } from "@/components/AppShell";
 import { Toast } from "@/components/Toast";
+import { SvgSeatMap } from "@/components/SvgSeatMap";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n";
 import type { Room, Seat, User } from "@/lib/types";
@@ -13,6 +14,7 @@ const emptyRoomForm = {
   name: "",
   description: "",
   floor: "",
+  svgMap: "",
   isActive: true
 };
 
@@ -38,6 +40,7 @@ export default function AdminPage() {
   const [toastMessage, setToastMessage] = useState("");
   const [activeTab, setActiveTab] = useState<"maps" | "roles" | "users">("maps");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSeatMapPicker, setShowSeatMapPicker] = useState(false);
 
   const selectedRoom = useMemo(() => rooms.find((room) => room.id === selectedRoomId), [rooms, selectedRoomId]);
   const filteredUsers = useMemo(() => {
@@ -252,6 +255,7 @@ export default function AdminPage() {
                 {t.openForBooking}
               </label>
               <textarea className="field min-h-20 px-3 py-3 sm:col-span-2" placeholder={t.description} value={roomForm.description} onChange={(event) => setRoomForm({ ...roomForm, description: event.target.value })} />
+              <textarea className="field min-h-20 px-3 py-3 sm:col-span-2 font-mono text-xs" placeholder="<g>...</g> (SVG Map Code)" value={roomForm.svgMap} onChange={(event) => setRoomForm({ ...roomForm, svgMap: event.target.value })} />
               <button onClick={createRoom} disabled={saving || !roomForm.code || !roomForm.name} className="button-primary flex items-center justify-center gap-2 px-4 py-3 sm:col-span-2">
                 <Plus size={18} />
                 {t.addMapRoom}
@@ -284,7 +288,43 @@ export default function AdminPage() {
                 <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">{t.manageSeats}</h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400">{selectedRoom?.name ?? t.chooseRoom}</p>
               </div>
+              {selectedRoom && (
+                <button
+                  type="button"
+                  onClick={() => setShowSeatMapPicker(!showSeatMapPicker)}
+                  className={`ml-auto flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${showSeatMapPicker ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400" : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"}`}
+                >
+                  <MapPinned size={16} />
+                  Visual Picker
+                </button>
+              )}
             </div>
+
+            {showSeatMapPicker && selectedRoom && (
+              <div className="mb-5 overflow-hidden rounded-xl border border-red-200 dark:border-red-900/50">
+                <div className="bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                  Click anywhere on the map to set X and Y coordinates.
+                </div>
+                <SvgSeatMap
+                  seats={[...seats, {
+                    id: "preview-seat",
+                    roomId: selectedRoom.id,
+                    label: seatForm.label || "★",
+                    zone: seatForm.zone,
+                    position: { x: seatForm.x, y: seatForm.y },
+                    isActive: seatForm.isActive
+                  }]}
+                  reservedSeatIds={new Set()}
+                  selectedSeatId="preview-seat"
+                  roomCode={selectedRoom.code}
+                  roomSvg={selectedRoom.svgMap}
+                  onSelectSeat={() => {}}
+                  onClickMap={(x, y) => {
+                    setSeatForm((prev) => ({ ...prev, x, y }));
+                  }}
+                />
+              </div>
+            )}
 
             <div className="grid gap-3 sm:grid-cols-2">
               <input className="field px-3 py-3" placeholder={t.seatLabel} value={seatForm.label} onChange={(event) => setSeatForm({ ...seatForm, label: event.target.value })} />

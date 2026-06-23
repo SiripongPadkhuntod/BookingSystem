@@ -19,6 +19,7 @@ export type Room = {
   name: string;
   description: string;
   floor: string;
+  svgMap?: string;
   isActive: boolean;
 };
 

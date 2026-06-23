@@ -33,6 +33,7 @@ type Room struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Floor       string `json:"floor"`
+	SvgMap      string `json:"svgMap"`
 	IsActive    bool   `json:"isActive"`
 }
 

@@ -16,8 +16,27 @@ export function setToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
 }
 
+let cachedUser: User | null = null;
+type Listener = (user: User | null) => void;
+const listeners = new Set<Listener>();
+
+export function subscribeUserCache(listener: Listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+export function getCachedUser() {
+  return cachedUser;
+}
+
+export function setCachedUser(user: User | null) {
+  cachedUser = user;
+  listeners.forEach((l) => l(user));
+}
+
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
+  setCachedUser(null);
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -57,9 +76,16 @@ export const api = {
     lastName: string;
     studentId: string;
   }) => request<AuthResult>("/api/v1/auth/register", { method: "POST", body: JSON.stringify(body), auth: false }),
-  me: () => request<User>("/api/v1/auth/me"),
-  updateProfile: (body: { firstName: string; lastName: string; displayName: string; department: string; studentId: string }) => 
-    request<User>("/api/v1/auth/me", { method: "PUT", body: JSON.stringify(body) }),
+  me: async () => {
+    const user = await request<User>("/api/v1/auth/me");
+    setCachedUser(user);
+    return user;
+  },
+  updateProfile: async (body: { firstName: string; lastName: string; displayName: string; department: string; studentId: string }) => {
+    const user = await request<User>("/api/v1/auth/me", { method: "PUT", body: JSON.stringify(body) });
+    setCachedUser(user);
+    return user;
+  },
   changePassword: (body: { currentPassword: string; newPassword: string }) => 
     request<void>("/api/v1/auth/me/password", { method: "PUT", body: JSON.stringify(body) }),
   deactivateAccount: (body: { password: string }) => 
@@ -84,6 +110,7 @@ export const api = {
     name: string;
     description: string;
     floor: string;
+    svgMap?: string;
     isActive: boolean;
   }) => request<Room>("/api/v1/admin/rooms", { method: "POST", body: JSON.stringify(body) }),
   adminUpdateRoom: (id: string, body: {
@@ -91,6 +118,7 @@ export const api = {
     name: string;
     description: string;
     floor: string;
+    svgMap?: string;
     isActive: boolean;
   }) => request<Room>(`/api/v1/admin/rooms/${id}`, { method: "PUT", body: JSON.stringify(body) }),
   adminSeats: async (roomId: string) => (await request<{ data: Seat[] }>(`/api/v1/admin/rooms/${roomId}/seats`)).data,

@@ -19,7 +19,7 @@ func NewAdminRepository(db *pgxpool.Pool) AdminRepository {
 
 func (r AdminRepository) ListRooms(ctx context.Context) ([]domain.Room, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT id, code, name, description, floor, is_active
+		SELECT id, code, name, description, floor, svg_map, is_active
 		FROM rooms
 		ORDER BY code
 	`)
@@ -31,7 +31,7 @@ func (r AdminRepository) ListRooms(ctx context.Context) ([]domain.Room, error) {
 	rooms := []domain.Room{}
 	for rows.Next() {
 		room := domain.Room{}
-		if err := rows.Scan(&room.ID, &room.Code, &room.Name, &room.Description, &room.Floor, &room.IsActive); err != nil {
+		if err := rows.Scan(&room.ID, &room.Code, &room.Name, &room.Description, &room.Floor, &room.SvgMap, &room.IsActive); err != nil {
 			return nil, err
 		}
 		rooms = append(rooms, room)
@@ -41,21 +41,21 @@ func (r AdminRepository) ListRooms(ctx context.Context) ([]domain.Room, error) {
 
 func (r AdminRepository) CreateRoom(ctx context.Context, room domain.Room) (domain.Room, error) {
 	query := `
-		INSERT INTO rooms (id, code, name, description, floor, is_active)
-		VALUES ($1,$2,$3,$4,$5,$6)
-		RETURNING id, code, name, description, floor, is_active
+		INSERT INTO rooms (id, code, name, description, floor, svg_map, is_active)
+		VALUES ($1,$2,$3,$4,$5,$6,$7)
+		RETURNING id, code, name, description, floor, svg_map, is_active
 	`
-	return scanRoom(r.db.QueryRow(ctx, query, room.ID, room.Code, room.Name, room.Description, room.Floor, room.IsActive))
+	return scanRoom(r.db.QueryRow(ctx, query, room.ID, room.Code, room.Name, room.Description, room.Floor, room.SvgMap, room.IsActive))
 }
 
 func (r AdminRepository) UpdateRoom(ctx context.Context, room domain.Room) (domain.Room, error) {
 	query := `
 		UPDATE rooms
-		SET code = $2, name = $3, description = $4, floor = $5, is_active = $6
+		SET code = $2, name = $3, description = $4, floor = $5, svg_map = $6, is_active = $7
 		WHERE id = $1
-		RETURNING id, code, name, description, floor, is_active
+		RETURNING id, code, name, description, floor, svg_map, is_active
 	`
-	return scanRoom(r.db.QueryRow(ctx, query, room.ID, room.Code, room.Name, room.Description, room.Floor, room.IsActive))
+	return scanRoom(r.db.QueryRow(ctx, query, room.ID, room.Code, room.Name, room.Description, room.Floor, room.SvgMap, room.IsActive))
 }
 
 func (r AdminRepository) ListSeats(ctx context.Context, roomID string) ([]domain.Seat, error) {
@@ -164,7 +164,7 @@ func (r AdminRepository) UpdateUserStatus(ctx context.Context, userID string, is
 
 func scanRoom(row rowScanner) (domain.Room, error) {
 	room := domain.Room{}
-	err := row.Scan(&room.ID, &room.Code, &room.Name, &room.Description, &room.Floor, &room.IsActive)
+	err := row.Scan(&room.ID, &room.Code, &room.Name, &room.Description, &room.Floor, &room.SvgMap, &room.IsActive)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.Room{}, domain.ErrNotFound
 	}

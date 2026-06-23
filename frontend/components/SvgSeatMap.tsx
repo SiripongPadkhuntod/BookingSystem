@@ -34,12 +34,15 @@ type SvgSeatMapProps = {
   reservedSeatIds: Set<string>;
   selectedSeatId: string;
   roomCode?: string;
+  roomSvg?: string;
   onSelectSeat: (seatId: string) => void;
+  onClickMap?: (xPercent: number, yPercent: number) => void;
 };
 
-export function SvgSeatMap({ seats, reservedSeatIds, selectedSeatId, roomCode, onSelectSeat }: SvgSeatMapProps) {
+export function SvgSeatMap({ seats, reservedSeatIds, selectedSeatId, roomCode, roomSvg, onSelectSeat, onClickMap }: SvgSeatMapProps) {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const dragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [scale, setScale] = useState(1);
@@ -65,6 +68,18 @@ export function SvgSeatMap({ seats, reservedSeatIds, selectedSeatId, roomCode, o
   };
 
   const getPoint = (event: PointerEvent<HTMLDivElement>) => {
+    const svg = svgRef.current;
+    if (svg) {
+      const pt = svg.createSVGPoint();
+      pt.x = event.clientX;
+      pt.y = event.clientY;
+      const screenCTM = svg.getScreenCTM();
+      if (screenCTM) {
+        const svgP = pt.matrixTransform(screenCTM.inverse());
+        return { x: svgP.x, y: svgP.y };
+      }
+    }
+    // Fallback if SVG ref fails
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return { x: event.clientX, y: event.clientY };
     return {
@@ -92,6 +107,22 @@ export function SvgSeatMap({ seats, reservedSeatIds, selectedSeatId, roomCode, o
   const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
     setIsDragging(false);
     event.currentTarget.releasePointerCapture(event.pointerId);
+
+    if (onClickMap) {
+      const point = getPoint(event);
+      const dx = point.x - dragStartRef.current.x;
+      const dy = point.y - dragStartRef.current.y;
+      
+      if (Math.abs(dx) < 2 && Math.abs(dy) < 2) {
+        const internalX = (point.x / scale) - offset.x;
+        const internalY = (point.y / scale) - offset.y;
+        
+        const xPercent = Math.max(0, Math.min(100, (internalX / VIEWBOX.width) * 100));
+        const yPercent = Math.max(0, Math.min(100, (internalY / VIEWBOX.height) * 100));
+        
+        onClickMap(Math.round(xPercent), Math.round(yPercent));
+      }
+    }
   };
 
   const onWheel = (event: WheelEvent<HTMLDivElement>) => {
@@ -130,9 +161,15 @@ export function SvgSeatMap({ seats, reservedSeatIds, selectedSeatId, roomCode, o
         onPointerCancel={() => setIsDragging(false)}
         onWheel={onWheel}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} className="h-full w-full">
-          <g transform={`translate(${offset.x} ${offset.y}) scale(${scale})`}>
-            {isMeetingRoom ? <MeetingRoomBackground /> : <LabRoomBackground />}
+        <svg ref={svgRef} xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} className="h-full w-full">
+          <g transform={`scale(${scale}) translate(${offset.x} ${offset.y})`}>
+            {roomSvg ? (
+              <g dangerouslySetInnerHTML={{ __html: roomSvg }} />
+            ) : isMeetingRoom ? (
+              <MeetingRoomBackground />
+            ) : (
+              <LabRoomBackground />
+            )}
             <g>
               {seatCoordinates.map(({ seat, x, y }) => {
                 const reserved = reservedSeatIds.has(seat.id);
@@ -159,8 +196,9 @@ export function SvgSeatMap({ seats, reservedSeatIds, selectedSeatId, roomCode, o
                       fill={fill}
                       stroke={selected ? "#7f1d1d" : "#0f172a"}
                       strokeWidth={selected ? 4 : 2}
-                      onMouseEnter={(event) => event.currentTarget.setAttribute("fill", hoverFill)}
-                      onMouseLeave={(event) => event.currentTarget.setAttribute("fill", fill)}
+                      className={onClickMap ? "pointer-events-none" : ""}
+                      onMouseEnter={(event) => { if (!onClickMap) event.currentTarget.setAttribute("fill", hoverFill) }}
+                      onMouseLeave={(event) => { if (!onClickMap) event.currentTarget.setAttribute("fill", fill) }}
                     />
                     <text
                       x={x}

@@ -154,6 +154,7 @@ export function BookingWorkspace() {
             reservedSeatIds={reservedSeatIds}
             selectedSeatId={seatId}
             roomCode={selectedRoom?.code}
+            roomSvg={selectedRoom?.svgMap}
             onSelectSeat={setSeatId}
           />
         </section>
