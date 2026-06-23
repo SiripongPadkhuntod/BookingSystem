@@ -21,6 +21,7 @@ type User struct {
 	StudentID    string    `json:"studentId"`
 	Department   string    `json:"department"`
 	Role         Role      `json:"role"`
+	IsActive     bool      `json:"isActive"`
 	PasswordHash string    `json:"-"`
 	CreatedAt    time.Time `json:"createdAt"`
 }
@@ -78,4 +79,5 @@ var (
 	ErrInactiveResource   = errors.New("booking is disabled for this room or seat")
 	ErrReservationOverlap = errors.New("seat is already reserved for this time")
 	ErrInvalidTimeRange   = errors.New("invalid reservation time range")
+	ErrIncorrectPassword  = errors.New("incorrect current password")
 )

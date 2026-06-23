@@ -35,6 +35,9 @@ func New(handlers Handlers, tokens security.TokenService, globalMiddleware ...gi
 	protected := api.Group("")
 	protected.Use(middleware.Auth(tokens))
 	protected.GET("/auth/me", handlers.Auth.Me)
+	protected.PUT("/auth/me", handlers.Auth.UpdateProfile)
+	protected.PUT("/auth/me/password", handlers.Auth.ChangePassword)
+	protected.POST("/auth/me/deactivate", handlers.Auth.DeactivateAccount)
 	protected.GET("/rooms", handlers.Catalog.ListRooms)
 	protected.GET("/rooms/:roomID/seats", handlers.Catalog.ListSeats)
 	protected.GET("/reservations", handlers.Reservations.List)
@@ -52,6 +55,7 @@ func New(handlers Handlers, tokens security.TokenService, globalMiddleware ...gi
 	admin.PUT("/rooms/:roomID/seats/:seatID", handlers.Admin.UpdateSeat)
 	admin.GET("/users", handlers.Admin.ListUsers)
 	admin.PUT("/users/:id/role", handlers.Admin.UpdateUserRole)
+	admin.PUT("/users/:id/status", handlers.Admin.UpdateUserStatus)
 
 	return engine
 }

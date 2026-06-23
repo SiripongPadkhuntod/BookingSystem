@@ -102,7 +102,7 @@ func (r AdminRepository) UpdateSeat(ctx context.Context, seat domain.Seat) (doma
 
 func (r AdminRepository) ListUsers(ctx context.Context) ([]domain.User, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT id, email, username, password_hash, first_name, last_name, student_id, department, role, created_at
+		SELECT id, email, username, password_hash, first_name, last_name, student_id, department, role, is_active, created_at
 		FROM users
 		ORDER BY created_at DESC
 	`)
@@ -127,9 +127,23 @@ func (r AdminRepository) UpdateUserRole(ctx context.Context, userID string, role
 		UPDATE users
 		SET role = $2
 		WHERE id = $1
-		RETURNING id, email, username, password_hash, first_name, last_name, student_id, department, role, created_at
+		RETURNING id, email, username, password_hash, first_name, last_name, student_id, department, role, is_active, created_at
 	`
 	user, err := scanUser(r.db.QueryRow(ctx, query, userID, role))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.User{}, domain.ErrNotFound
+	}
+	return user, err
+}
+
+func (r AdminRepository) UpdateUserStatus(ctx context.Context, userID string, isActive bool) (domain.User, error) {
+	query := `
+		UPDATE users
+		SET is_active = $2
+		WHERE id = $1
+		RETURNING id, email, username, password_hash, first_name, last_name, student_id, department, role, is_active, created_at
+	`
+	user, err := scanUser(r.db.QueryRow(ctx, query, userID, isActive))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.User{}, domain.ErrNotFound
 	}

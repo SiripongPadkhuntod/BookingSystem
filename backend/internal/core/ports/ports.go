@@ -11,6 +11,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user domain.User) (domain.User, error)
 	FindByEmailOrUsername(ctx context.Context, identifier string) (domain.User, error)
 	FindByID(ctx context.Context, id string) (domain.User, error)
+	Update(ctx context.Context, user domain.User) (domain.User, error)
 }
 
 type CatalogRepository interface {
@@ -33,6 +34,7 @@ type AdminRepository interface {
 	UpdateSeat(ctx context.Context, seat domain.Seat) (domain.Seat, error)
 	ListUsers(ctx context.Context) ([]domain.User, error)
 	UpdateUserRole(ctx context.Context, userID string, role domain.Role) (domain.User, error)
+	UpdateUserStatus(ctx context.Context, userID string, isActive bool) (domain.User, error)
 }
 
 type ReservationFilter struct {

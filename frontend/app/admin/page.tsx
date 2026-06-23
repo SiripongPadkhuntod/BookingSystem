@@ -36,8 +36,19 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [toastMessage, setToastMessage] = useState("");
+  const [activeTab, setActiveTab] = useState<"maps" | "roles" | "users">("maps");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const selectedRoom = useMemo(() => rooms.find((room) => room.id === selectedRoomId), [rooms, selectedRoomId]);
+  const filteredUsers = useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    return users.filter((u) => 
+      u.firstName.toLowerCase().includes(q) || 
+      u.lastName.toLowerCase().includes(q) || 
+      u.email.toLowerCase().includes(q) ||
+      u.studentId.toLowerCase().includes(q)
+    );
+  }, [users, searchQuery]);
 
   const loadRooms = async () => {
     const data = await api.adminRooms();
@@ -157,6 +168,20 @@ export default function AdminPage() {
     }
   };
 
+  const updateUserStatus = async (user: User, isActive: boolean) => {
+    setSaving(true);
+    setMessage("");
+    try {
+      await api.adminUpdateUserStatus(user.id, isActive);
+      setToastMessage(isActive ? "User activated" : "User deactivated");
+      await loadUsers();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : t.adminSaveFailed);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <AppShell>
       <div className="space-y-6">
@@ -168,7 +193,29 @@ export default function AdminPage() {
 
         {message && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{message}</div>}
 
-        <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+        <div className="flex items-center gap-6 border-b border-slate-200">
+          <button
+            onClick={() => setActiveTab("maps")}
+            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "maps" ? "border-b-2 border-red-700 text-red-700" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700"}`}
+          >
+            {t.manageRooms}
+          </button>
+          <button
+            onClick={() => setActiveTab("roles")}
+            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "roles" ? "border-b-2 border-red-700 text-red-700" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700"}`}
+          >
+            {t.manageRoles}
+          </button>
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`pb-3 text-sm font-semibold transition-colors ${activeTab === "users" ? "border-b-2 border-red-700 text-red-700" : "border-b-2 border-transparent text-slate-500 hover:text-slate-700"}`}
+          >
+            User Management
+          </button>
+        </div>
+
+        {activeTab === "maps" && (
+          <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
           <div className="card p-5">
             <div className="mb-5 flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700">
@@ -261,36 +308,100 @@ export default function AdminPage() {
             </div>
           </div>
         </section>
+        )}
 
-        <section className="card p-5">
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700">
-              <UsersRound size={22} />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-slate-950">{t.manageRoles}</h2>
-              <p className="text-sm text-slate-500">{t.manageRolesHint}</p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {users.map((user) => (
-              <div key={user.id} className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold text-slate-950">{user.firstName} {user.lastName}</div>
-                    <div className="truncate text-xs text-slate-500">{user.email}</div>
-                  </div>
-                  <ShieldCheck size={18} className={user.role === "admin" ? "text-red-700" : "text-slate-300"} />
+        {activeTab === "roles" && (
+          <section className="card p-5">
+            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700">
+                  <UsersRound size={22} />
                 </div>
-                <select className="field mt-4 px-3 py-3" value={user.role} onChange={(event) => updateUserRole(user, event.target.value as User["role"])}>
-                  <option value="user">{t.userRole}</option>
-                  <option value="admin">{t.adminRole}</option>
-                </select>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-950">{t.manageRoles}</h2>
+                  <p className="text-sm text-slate-500">{t.manageRolesHint}</p>
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
+              <input 
+                type="text" 
+                placeholder="Search name or email..." 
+                className="field px-3 py-2 text-sm sm:w-64"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {filteredUsers.map((user) => (
+                <div key={user.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold text-slate-950">{user.firstName} {user.lastName}</div>
+                      <div className="truncate text-xs text-slate-500">{user.email}</div>
+                    </div>
+                    <ShieldCheck size={18} className={user.role === "admin" ? "text-red-700" : "text-slate-300"} />
+                  </div>
+                  <select className="field mt-4 px-3 py-3" value={user.role} onChange={(event) => updateUserRole(user, event.target.value as User["role"])}>
+                    <option value="user">{t.userRole}</option>
+                    <option value="admin">{t.adminRole}</option>
+                  </select>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {activeTab === "users" && (
+          <section className="card p-5">
+            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-700">
+                  <UsersRound size={22} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-950">User Management</h2>
+                  <p className="text-sm text-slate-500">Enable or disable user access</p>
+                </div>
+              </div>
+              <input 
+                type="text" 
+                placeholder="Search name or email..." 
+                className="field px-3 py-2 text-sm sm:w-64"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {filteredUsers.map((user) => (
+                <div key={user.id} className={`rounded-xl border p-4 ${user.isActive ? "border-slate-200 bg-white" : "border-red-100 bg-red-50/30 opacity-75"}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold text-slate-950">{user.firstName} {user.lastName}</div>
+                      <div className="truncate text-xs text-slate-500">{user.email}</div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className={`text-xs font-semibold ${user.isActive ? "text-emerald-600" : "text-red-600"}`}>
+                      {user.isActive ? "Active" : "Disabled"}
+                    </span>
+                    <button
+                      onClick={() => updateUserStatus(user, !user.isActive)}
+                      disabled={saving}
+                      className={`rounded-lg border px-3 py-2 text-xs font-semibold ${
+                        user.isActive 
+                          ? "border-red-200 text-red-700 hover:bg-red-50" 
+                          : "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                      }`}
+                    >
+                      {user.isActive ? "Disable Login" : "Enable Login"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <Toast open={Boolean(toastMessage)} message={toastMessage} onClose={() => setToastMessage("")} />
       </div>

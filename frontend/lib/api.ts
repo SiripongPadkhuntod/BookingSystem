@@ -58,6 +58,11 @@ export const api = {
     studentId: string;
   }) => request<AuthResult>("/api/auth/register", { method: "POST", body: JSON.stringify(body), auth: false }),
   me: () => request<User>("/api/auth/me"),
+  updateProfile: (body: { firstName: string; lastName: string; department: string; studentId: string }) => 
+    request<User>("/api/auth/me", { method: "PUT", body: JSON.stringify(body) }),
+  changePassword: (body: { currentPassword: string; newPassword: string }) => 
+    request<void>("/api/auth/me/password", { method: "PUT", body: JSON.stringify(body) }),
+  deactivateAccount: () => request<void>("/api/auth/me/deactivate", { method: "POST" }),
   rooms: async () => (await request<{ data: Room[] }>("/api/rooms")).data,
   seats: async (roomId: string) => (await request<{ data: Seat[] }>(`/api/rooms/${roomId}/seats`)).data,
   reservations: async (params: URLSearchParams) =>
@@ -104,5 +109,7 @@ export const api = {
   }) => request<Seat>(`/api/admin/rooms/${roomId}/seats/${seatId}`, { method: "PUT", body: JSON.stringify(body) }),
   adminUsers: async () => (await request<{ data: User[] }>("/api/admin/users")).data,
   adminUpdateUserRole: (id: string, role: User["role"]) =>
-    request<User>(`/api/admin/users/${id}/role`, { method: "PUT", body: JSON.stringify({ role }) })
+    request<User>(`/api/admin/users/${id}/role`, { method: "PUT", body: JSON.stringify({ role }) }),
+  adminUpdateUserStatus: (id: string, isActive: boolean) =>
+    request<User>(`/api/admin/users/${id}/status`, { method: "PUT", body: JSON.stringify({ isActive }) })
 };
